@@ -1,10 +1,11 @@
 import { createBrowserRouter } from 'react-router-dom'
 import TempPage from '../UI/pages/TempPage'
+import MainLayout from '../UI/layouts/MainLayout'
 
 const routes = [
     {
         path: '/',
-        element: <TempPage />
+        element: <MainLayout />
     }
 ]
 
