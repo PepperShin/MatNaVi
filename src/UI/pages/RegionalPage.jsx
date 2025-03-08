@@ -78,19 +78,18 @@ function RegionalPage() {
           <Col xs="auto">
             <strong>선택 지역 :</strong>
           </Col>
-          <Col xs="auto" style={{ maxWidth: '250px', flexGrow: 1 }}>
+          <Col xs="auto" className="d-flex align-items-center gap-2 flex-wrap" style={{ flexGrow: 1 }}>
             <Form.Control
               type="text"
               placeholder="도시명을 입력해주세요 / 예: 서울, 부산 등..."
-              style={{ minWidth: '150px' }}
+              className="w-auto w-md-100"
+              style={{ maxWidth: '200px', minWidth: '180px', flexGrow: 1 }}
             />
-          </Col>
-          <Col xs="auto">
             <Button variant="secondary">변경</Button>
           </Col>
 
           {/* 정렬 옵션 셀렉트 박스 */}
-          <Col xs={12} className="mt-2">
+          <Col xs="auto" className="ms-md-auto mt-2 mt-md-0">
             <Form.Select
               style={{ minWidth: '120px' }}
               value={sortOption}
