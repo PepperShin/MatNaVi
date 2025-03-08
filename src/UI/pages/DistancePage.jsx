@@ -1,5 +1,8 @@
 // src/UI/pages/DistancePage.jsx
 import React, { useState, useEffect } from 'react';
+import PaginationComponent from '../../components/PaginationComponent';
+import Header from '../../components/Header';
+
 import {
   Container,
   Navbar,
@@ -39,22 +42,31 @@ function DistancePage() {
       sortedList.sort((a, b) => b.density - a.density);
     }
     setTravelList(sortedList);
-  }, [sortOption]);
+  }, [sortOption, travelList]);
 
   const handleSortChange = (e) => {
     setSortOption(e.target.value);
   };
 
+  const [currentPage, setCurrentPage] = useState(1); // 현재 페이지 번호
+const itemsPerPage = 5; // 한 페이지에 5개 표시
+
+const totalItems = travelList.length; // 전체 여행지 개수
+
+// 현재 페이지에서 보여줄 데이터 슬라이싱
+const indexOfLastItem = currentPage * itemsPerPage;
+const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+const currentItems = travelList.slice(indexOfFirstItem, indexOfLastItem);
+
+// 페이지 변경 함수
+const handlePageChange = (pageNumber) => {
+  setCurrentPage(pageNumber);
+};
+
   return (
     <>
       {/* Header */}
-      <header>
-        <Navbar bg="light" variant="light">
-          <Container>
-            <Navbar.Brand>Matnavi</Navbar.Brand>
-          </Container>
-        </Navbar>
-      </header>
+      <Header />
 
       {/* Main */}
       <main>
@@ -95,7 +107,7 @@ function DistancePage() {
 
           {/* Travel destination List */}
           <Row>
-            {travelList.map((item) => (
+            {currentItems.map((item) => (
               <Col key={item.id} md={12} className="mb-3">
                 <Card>
                   <Card.Body className="d-flex">
@@ -118,16 +130,10 @@ function DistancePage() {
             ))}
           </Row>
 
+
           {/* Pagination */}
-          <div className="d-flex justify-content-center mt-4">
-            <Pagination>
-              <Pagination.Prev />
-              <Pagination.Item>1</Pagination.Item>
-              <Pagination.Item>2</Pagination.Item>
-              <Pagination.Item>3</Pagination.Item>
-              <Pagination.Next />
-            </Pagination>
-          </div>
+          <PaginationComponent totalItems={totalItems} onPageChange={handlePageChange} />
+          
         </Container>
       </main>
 

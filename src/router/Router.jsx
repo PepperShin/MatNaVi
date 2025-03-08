@@ -1,7 +1,8 @@
 import { createBrowserRouter } from 'react-router-dom';
-import HomePage from '../UI/pages/HomePage';
+//import HomePage from '../UI/pages/HomePage';
 import RegionalPage from '../UI/pages/RegionalPage';
 import DistancePage from '../UI/pages/DistancePage';
+import { Navigate } from "react-router-dom";
 
 const routes = [
 {
