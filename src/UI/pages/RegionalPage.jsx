@@ -7,6 +7,8 @@ import PaginationComponent from '../../components/PaginationComponent';
 import Header from '../../components/Header';
 import { getTouristAttractions, getCoordinates } from '../../api/API';
 import { getCurrentLocation, getAddressFromCoordinates, calculateDistance, retryGetCoordinates, cleanAddress } from "../../api/Location";
+import { paginate } from "../../utils/Pagination";
+
 
 function RegionalPage() {
 
@@ -80,14 +82,14 @@ function RegionalPage() {
   const [currentPage, setCurrentPage] = useState(1); // 현재 페이지 상태
   const itemsPerPage = 5; // 한 페이지에 5개 표시
   
+  // 현재 페이지의 데이터 가져오기
+  const currentItems = paginate(travelList, currentPage, itemsPerPage);
+
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
   
-  // 현재 페이지의 데이터 슬라이싱
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = travelList.slice(indexOfFirstItem, indexOfLastItem);
+
   
 
   // 사용자 위치 - 주소
