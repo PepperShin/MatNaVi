@@ -1,14 +1,21 @@
-import { createBrowserRouter } from 'react-router-dom'
-import TempPage from '../UI/pages/TempPage'
-import MainLayout from '../UI/layouts/MainLayout'
+import { createBrowserRouter } from "react-router-dom";
+import MainLayout from "../UI/layouts/MainLayout";
+import Part1 from "../UI/pages/Part1";
+import MainPage from "../UI/pages/MainPage";
+import NextPage from "../UI/pages/NextPage";
 
-const routes = [
-    {
-        path: '/',
-        element: <MainLayout />
-    }
-]
+// 라우트 설정 배열
+export const routeConfig = [
+  {
+    path: "/",
+    element: <MainLayout />,
+    children: [
+      { index: true, element: <Part1 /> },
+      { path: "main", element: <MainPage /> },
+      { path: "next", element: <NextPage /> },
+    ],
+  },
+];
 
-const router = createBrowserRouter(routes)
-
-export { router, routes }
+// 라우터 인스턴스 생성
+export const router = createBrowserRouter(routeConfig);

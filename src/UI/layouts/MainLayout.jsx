@@ -1,12 +1,19 @@
-import React from 'react'
-import Header from '../components/common/Header'
+import React from "react";
+import { Outlet } from "react-router-dom";
+import Header from "../components/common/Header";
 
-const MainLayout = () => {
+function MainLayout() {
   return (
-    <div className='vh-100 d-flex flex-column justify-content-between'>
-      <Header/>
+    <div>
+      {/* 공통 헤더 */}
+      <Header />
+      
+      {/* 자식 라우트가 표시되는 영역 */}
+      <main style={{ padding: "20px" }}>
+        <Outlet />
+      </main>
     </div>
-  )
+  );
 }
 
-export default MainLayout
+export default MainLayout;
