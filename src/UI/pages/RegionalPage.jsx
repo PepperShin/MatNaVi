@@ -5,28 +5,50 @@ import { Container, Navbar, Card, Button, Row, Col, Form, Pagination } from 'rea
 import { Link } from 'react-router-dom';
 import PaginationComponent from '../../components/PaginationComponent';
 import Header from '../../components/Header';
+import { getTouristAttractions, getCoordinates } from '../../api/API';
+import { getCurrentLocation, getAddressFromCoordinates, calculateDistance, retryGetCoordinates, cleanAddress } from "../../api/Location";
 
 function RegionalPage() {
-  // 여행지 목록 객체 배열 세팅 -> axios.get() 등으로 서버에서 받아올 예정
-  const [travelList, setTravelList] = useState([
-    { id: 1, name: '장소 A', rating: 4.5, distance: 10, density: 20 },
-    { id: 2, name: '장소 B', rating: 3.2, distance: 5, density: 10 },
-    { id: 3, name: '장소 C', rating: 4.8, distance: 15, density: 30 },
-    { id: 4, name: '장소 D', rating: 3.7, distance: 20, density: 25 },
-    { id: 5, name: '장소 E', rating: 4.1, distance: 8, density: 15 },
-    { id: 6, name: '장소 F', rating: 4.9, distance: 12, density: 35 },
-    { id: 7, name: '장소 G', rating: 3.5, distance: 7, density: 18 },
-    { id: 8, name: '장소 H', rating: 4.2, distance: 14, density: 22 },
-    { id: 9, name: '장소 I', rating: 4.0, distance: 9, density: 27 },
-    { id: 10, name: '장소 J', rating: 3.8, distance: 11, density: 19 },
-    { id: 11, name: '장소 K', rating: 4.3, distance: 6, density: 23 },
-    { id: 12, name: '장소 L', rating: 4.6, distance: 13, density: 28 },
-    { id: 13, name: '장소 M', rating: 3.6, distance: 16, density: 24 },
-    // 필요하면 더 추가 가능
-  ]);
+
+  const [searchLocation, setSearchLocation] = useState(""); // 입력한 지역명
+  const [travelList, setTravelList] = useState([]); // 가져온 여행지 목록
+  const [loading, setLoading] = useState(false); // 로딩 상태
+
+    // 지역 변경 버튼 클릭 시 실행될 함수
+  const handleLocationChange = async () => {
+    if (!searchLocation.trim()) return; // 빈 값 방지
+    console.log(`🔍 검색할 지역: ${searchLocation}`);
+
+    setLoading(true); // 로딩 시작
+
+    try {
+      // 입력한 지역의 위도, 경도 가져오기
+      console.log("지역 입력 값:", searchLocation);
+      const location = await getCoordinates(searchLocation);
+
+      if (!location) {
+        throw new Error("좌표를 가져올 수 없습니다.");
+      }
+
+      //console.log("변환된 좌표:", location);
+      const { lat, lng } = location; // 여기서 구조 분해 할당
+
+      const attractions = await getTouristAttractions(lat, lng);
+      //console.log("가져온 관광지 목록:", attractions);
+
+      setTravelList(attractions);
+      setSortOption("정렬");  // 검색 시 정렬 초기화
+
+    } catch (error) {
+      console.error("여행지 정보를 가져오는 데 실패했습니다.", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   {/* 정렬 */}
-  const [sortOption, setSortOption] = useState('별점순');
+  const [sortOption, setSortOption] = useState('정렬');
 
   useEffect(() => {
     let sortedList = [...travelList];
@@ -68,8 +90,87 @@ function RegionalPage() {
   const currentItems = travelList.slice(indexOfFirstItem, indexOfLastItem);
   
 
+  // 사용자 위치 - 주소
+  const [userLocation, setUserLocation] = useState(null);
+  const [userAddress, setUserAddress] = useState("");
   
- 
+  // 실패한 주소 저장 (재시도 방지용)
+  const [failedAddresses, setFailedAddresses] = useState(new Set());
+
+  // 사용자 위치를 주소로 변환
+  useEffect(() => {
+    getCurrentLocation(async (location) => {
+        if (location) {
+            setUserLocation(location);
+            console.log("✅ 사용자 위치:", location);
+
+            // 좌표를 주소로 변환
+            const address = await getAddressFromCoordinates(location.lat, location.lng);
+            setUserAddress(address);
+            console.log("📍 변환된 사용자 주소:", address);
+        }
+    });
+}, []);
+
+
+
+  // 여행지 데이터를 가져와서 사용자 위치와 거리 계산
+  useEffect(() => {
+    if (userLocation && travelList.length > 0) {
+        const updateDistances = async () => {
+            const updatedItems = await Promise.all(
+                travelList.map(async (place) => {
+                    if (place.distance) return place; // 이미 거리 계산된 경우 다시 계산 안 함
+
+                    if (place.mapX && place.mapY) {
+                        // 좌표가 있는 경우 거리 계산
+                        const distance = calculateDistance(
+                            userLocation.lat, userLocation.lng,
+                            Number(place.mapY), Number(place.mapX)
+                        );
+
+                        return { ...place, distance: isNaN(distance) ? "계산 실패" : `${distance}` };
+                    } 
+                    else {
+                        // 이미 실패한 주소라면 재시도하지 않음
+                        if (failedAddresses.has(place.addr1)) {
+                            return { ...place, distance: "주소 변환 실패" };
+                        }
+
+                        //console.warn(`🚨 여행지 ${place.title} 좌표 없음, 주소 변환 시도 중...`);
+                        const coord = await retryGetCoordinates(place.addr1);
+                        
+                        if (!coord) {
+                            console.warn(`❌ 최종 실패: ${place.addr1}`);
+                            setFailedAddresses(prev => new Set(prev).add(place.addr1)); // ❗ 실패한 주소 저장
+                            return { ...place, distance: "주소 변환 실패" };
+                        }
+
+                        const distance = calculateDistance(
+                            userLocation.lat, userLocation.lng,
+                            Number(coord.lat), Number(coord.lng)
+                        );
+
+                        return { ...place, distance: isNaN(distance) ? "계산 실패" : `${distance}` };
+                    }
+                })
+            );
+
+            // travelList가 변경될 때만 업데이트 (무한 루프 방지)
+            setTravelList(prevList => {
+              if (JSON.stringify(prevList) !== JSON.stringify(updatedItems)) {
+                return updatedItems;
+              }
+              return prevList;
+            });
+        };
+
+        updateDistances();
+    }
+  }, [userLocation, travelList]);  // `userLocation` 또는 `travelList`가 변경될 때 실행
+
+
+  
    return (
     <>
       <Header />
@@ -81,11 +182,13 @@ function RegionalPage() {
           <Col xs="auto" className="d-flex align-items-center gap-2 flex-wrap" style={{ flexGrow: 1 }}>
             <Form.Control
               type="text"
-              placeholder="도시명을 입력해주세요 / 예: 서울, 부산 등..."
+              placeholder="도시명을 입력해주세요"
+              value={searchLocation}
+              onChange={(e) => setSearchLocation(e.target.value)}
               className="w-auto w-md-100"
               style={{ maxWidth: '200px', minWidth: '180px', flexGrow: 1 }}
             />
-            <Button variant="secondary">변경</Button>
+            <Button variant="secondary" onClick={handleLocationChange}>변경</Button>
           </Col>
 
           {/* 정렬 옵션 셀렉트 박스 */}
@@ -95,6 +198,7 @@ function RegionalPage() {
               value={sortOption}
               onChange={handleSortChange}
             >
+              <option value="정렬">정렬</option>
               <option value="별점순">별점순</option>
               <option value="거리순">거리순</option>
               <option value="여행지 밀집도 순">여행지 밀집도 순</option>
@@ -103,29 +207,28 @@ function RegionalPage() {
         </Row>
 
         {/* 여행지 목록 표시 (정렬 결과 반영) */}
-        {currentItems.map((item) => (
-          <Link 
-          to={`/travel/${item.id}`} 
-          key={item.id} 
-          style={{ textDecoration: 'none', color: 'inherit' }}>
-            <Row key={item.id} className="border p-3 mb-2">
-            <Col xs={3} md={2}>
-              <div
-                className="bg-secondary text-white d-flex align-items-center justify-content-center"
-                style={{ height: '100px' }}
-              >
-                여행지 사진 // 여행지 사진은 크롤링으로 가져올 예정
-              </div>
-            </Col>
-            <Col>
-              <h5>{item.name}</h5>
-              <p>
-                별점(별 5개 만점으로 표현 방법 검색 필요): {item.rating} / 거리: {item.distance}km / 밀집도: {item.density}
-              </p>
-            </Col>
-          </Row>
-          </Link>
-        ))}
+        {loading ? (
+          <p>로딩 중...</p>
+        ) : (
+          currentItems.map((item, index) => (
+            <Link to={`/travel/${item.contentid}`} key={item.contentid || index} style={{ textDecoration: 'none', color: 'inherit' }}>
+              <Row className="border p-3 mb-2">
+                <Col xs={3} md={2}>
+                  <div className="bg-secondary text-white d-flex align-items-center justify-content-center" style={{ height: '100px' }}>
+                    여행지 사진
+                  </div>
+                </Col>
+                <Col>
+                  <h5>{item.title}</h5>
+                  <p>주소: {item.addr1}</p>
+                  <p>지역 코드: {item.areacode} / 콘텐츠 ID: {item.contentid}</p>
+                  <p>거리: {item.distance ? `${item.distance} km` : "계산 중..."}</p>
+                  {/*<p>별점: {item.rating} / 거리: {item.distance}km / 밀집도: {item.density}</p>*/}
+                </Col>
+              </Row>
+            </Link>
+          ))
+        )}
 
         <PaginationComponent totalItems={totalItems} onPageChange={handlePageChange} />
         
