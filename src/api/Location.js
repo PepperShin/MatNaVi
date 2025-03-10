@@ -16,7 +16,7 @@ export function getCurrentLocation(callback) {
             lat: position.coords.latitude,
             lng: position.coords.longitude
           };
-          console.log("📍 내 위치 (GPS):", userLocation);
+          //console.log("📍 내 위치 (GPS):", userLocation);
           callback(userLocation);
         },
         (error) => {
@@ -46,7 +46,7 @@ export function getCurrentLocation(callback) {
         }
 
         const data = await response.json();
-        console.log("📍 내 위치 주소 변환 결과:", data);
+        //console.log("📍 내 위치 주소 변환 결과:", data);
 
         if (data.results && data.results.length > 0) {
             return data.results[0].region.area1.name + " " +
@@ -61,18 +61,15 @@ export function getCurrentLocation(callback) {
     }
 }
 
-// 📍 주소 → 좌표 변환 API 호출 (실패 시 최대 2회 재시도)
-export async function retryGetCoordinates(query, maxRetries = 2) {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        const result = await getCoordinates(query);
-        if (result) return result;
+// 📍 주소 → 좌표 변환 API 호출 (한 번만 시도)
+export async function retryGetCoordinates(query) {
+  const result = await getCoordinates(query);
+  if (result) return result;
 
-        console.warn(`⚠️ [${attempt}/${maxRetries}] 주소 변환 실패: ${query}`);
-    }
-
-    console.error(`❌ [최종 실패] 주소 변환 안됨: ${query}`);
-    return null; // 두 번 시도 후 실패하면 null 반환
+  console.error(`❌ 주소 변환 실패: ${query}`);
+  return null; // 한 번만 시도 후 실패하면 null 반환
 }
+
 
 // 사용자 위치와 관광지 위치를 비교해서 거리(km)를 계산하는 함수
 export function calculateDistance(lat1, lon1, lat2, lon2) {

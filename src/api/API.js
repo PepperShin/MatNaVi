@@ -1,14 +1,17 @@
+// src/api/API.js
+
 import axios from 'axios';
 
 // 한국관광공사 API - 관광지 정보 조회
 const TOUR_API_BASE_URL = "http://apis.data.go.kr/B551011/KorService1";
 
-export async function getTouristAttractions(lat, lng) {
+export async function getTouristAttractions(lat, lng, contentTypeId) {
     const apiKey = import.meta.env.VITE_TOUR_DECODING_KEY;  // API 키 가져오기
     const encodedApiKey = encodeURIComponent(apiKey); // API 키 인코딩
 
-    const url = `${TOUR_API_BASE_URL}/locationBasedList1?serviceKey=${encodedApiKey}&numOfRows=50&pageNo=1&MobileOS=ETC&MobileApp=TestApp&arrange=A&mapX=${lng}&mapY=${lat}&radius=5000&_type=json`;
-
+    // 출력할 여행지 개수
+    const length = 50
+    const url = `${TOUR_API_BASE_URL}/locationBasedList1?serviceKey=${encodedApiKey}&numOfRows=${length}&pageNo=1&MobileOS=ETC&MobileApp=TestApp&arrange=A&mapX=${lng}&mapY=${lat}&radius=5000&contentTypeId=${contentTypeId}&_type=json`;
     console.log("관광지 API 요청 URL:", url); // 요청 URL 확인용 로그
 
     try {
