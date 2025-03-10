@@ -94,7 +94,7 @@ function MainPage() {
       startDate: leftStartDate,
       endDate: leftEndDate,
     };
-  
+
     // 왼쪽 섹션 데이터를 "/next-left" 라우트로 전송
     navigate("/next-left", { state: leftData });
   };
@@ -144,12 +144,72 @@ function MainPage() {
               ))}
           </select>
         </div>
+
+        <h3>예산</h3>
+        <div style={{ marginBottom: "10px" }}>
+          <label>예산: </label>
+          <input
+            type="number"
+            placeholder="금액을 입력"
+            value={leftBudget}
+            onChange={handleLeftBudgetChange}
+          />
+        </div>
+
+        <h3>일정</h3>
+        <div style={{ marginBottom: "10px" }}>
+          <label>시작일: </label>
+          <input type="date" value={leftStartDate} onChange={handleLeftStartDateChange} />
+          <br />
+          <label>종료일: </label>
+          <input type="date" value={leftEndDate} onChange={handleLeftEndDateChange} />
+        </div>
+
+        <button onClick={handleLeftSubmit}>선택</button>
+      </div>
+
+      {/* 오른쪽 섹션 */}
+      <div style={{ flex: 1, border: "1px solid #ccc", padding: "10px", height: "100%", textAlign: "center" }}>
+        <h3>거리</h3>
+        <div style={{ marginBottom: "10px" }}>
+          <input
+            type="range"
+            min="0"
+            max={distanceOptions.length - 1}
+            step="1"
+            value={distanceIndex}
+            onChange={handleDistanceChange}
+          />
+          <span style={{ marginLeft: "10px" }}>
+            {distanceOptions[distanceIndex]} km
+          </span>
+        </div>
+
+        <h3>예산</h3>
+        <div style={{ marginBottom: "10px" }}>
+          <label>예산: </label>
+          <input
+            type="number"
+            placeholder="금액을 입력"
+            value={rightBudget}
+            onChange={handleRightBudgetChange}
+          />
+        </div>
+
+        <h3>일정</h3>
+        <div style={{ marginBottom: "10px" }}>
+          <label>시작일: </label>
+          <input type="date" value={rightStartDate} onChange={handleRightStartDateChange} />
+          <br />
+          <label>종료일: </label>
+          <input type="date" value={rightEndDate} onChange={handleRightEndDateChange} />
+        </div>
+
+        <button onClick={handleRightSubmit}>선택</button>
+      </div>
     </div>
-    </div>
-  )
+  );
 }
 
-
-      
-
 export default MainPage;
+
