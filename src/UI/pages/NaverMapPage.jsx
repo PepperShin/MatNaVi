@@ -1,62 +1,67 @@
-import React, { useEffect } from 'react'
+import React, { useEffect } from "react";
 
 const NaverMap = () => {
+  const maxMarkers = 5; // 마커 개수 제한
+  let markerList = []; // 마커를 저장할 배열
+
   useEffect(() => {
-    // 네이버 지도 API 로드
-    const script = document.createElement('script')
-    script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=pbin66712j`
-    script.async = true
-    document.head.appendChild(script)
+    const { naver } = window;
+    if (!naver) return;
 
-    script.onload = () => {
-      // 네이버 지도 API가 로드된 후 실행할 코드
-      const cityhall = new naver.maps.LatLng(37.5666805, 126.9784147)
-      const map = new naver.maps.Map('map', {
-        center: cityhall.destinationPoint(0, 500),
-        zoom: 15,
-      })
-      const marker = new naver.maps.Marker({
-        map: map,
-        position: cityhall,
-      })
+    // 지도 생성 함수
+    const createMap = (center) => {
+      const map = new naver.maps.Map("map", {
+        center: center,
+        zoom: 14,
+        minZoom: 12,
+        maxZoom: 16,
+      });
 
-      const contentString = [
-        '<div class="iw_inner">',
-        '   <h3>서울특별시청</h3>',
-        '   <p>서울특별시 중구 태평로1가 31 | 서울특별시 중구 세종대로 110 서울특별시청<br />',
-        '       <img src="/img/example/hi-seoul.jpg" width="55" height="55" alt="서울시청" class="thumb" /><br />',
-        '       02-120 | 공공,사회기관 &gt; 특별,광역시청<br />',
-        '       <a href="http://www.seoul.go.kr/" target="_blank">www.seoul.go.kr/</a>',
-        '   </p>',
-        '</div>',
-      ].join('')
+      // 마우스 클릭 시 마커 추가
+      naver.maps.Event.addListener(map, "click", function (e) {
+        const markerPosition = e.coord;
 
-      const infowindow = new naver.maps.InfoWindow({
-        content: contentString,
-      })
-
-      naver.maps.Event.addListener(marker, 'click', function (e) {
-        if (infowindow.getMap()) {
-          infowindow.close()
-        } else {
-          infowindow.open(map, marker)
+        // 만약 마커 개수가 최대값을 초과하면, 가장 오래된 마커 삭제
+        if (markerList.length >= maxMarkers) {
+          const removedMarker = markerList.shift(); // 가장 앞에 있는 마커를 제거
+          removedMarker.setMap(null); // 지도에서 제거
         }
-      })
 
-      infowindow.open(map, marker)
-    }
+        // 새로운 마커 생성
+        const marker = new naver.maps.Marker({
+          position: markerPosition,
+          map: map,
+        });
 
-    return () => {
-      // 클린업: 컴포넌트가 unmount될 때 script 태그를 제거
-      document.head.removeChild(script)
-    }
-  }, [])
+        // 마커 클릭 시 정보창 열기
+        const infoWindow = new naver.maps.InfoWindow({
+          content: `<div style="padding:10px;">마커 클릭!</div>`,
+        });
 
-  return (
-    <div>
-      <div id='map' style={{ width: '100%', height: '400px' }}></div>
-    </div>
-  )
-}
+        naver.maps.Event.addListener(marker, "click", function () {
+          infoWindow.open(map, marker);
+        });
 
-export default NaverMap
+        // 새 마커를 리스트에 추가
+        markerList.push(marker);
+      });
+    };
+
+    // 사용자 위치 가져오기
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const userLocation = new naver.maps.LatLng(position.coords.latitude, position.coords.longitude);
+        createMap(userLocation); // 사용자 위치로 지도 생성
+      },
+      () => {
+        // 위치 정보를 못 가져오면 기본 위치(서울) 설정
+        const defaultLocation = new naver.maps.LatLng(37.5665, 126.978);
+        createMap(defaultLocation); // 기본 위치로 지도 생성
+      }
+    );
+  }, []);
+
+  return <div id="map" style={{ width: "100%", height: "500px" }}></div>;
+};
+
+export default NaverMap;
