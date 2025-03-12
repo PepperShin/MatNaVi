@@ -12,7 +12,7 @@ function Header() {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">
             <Nav.Link as={Link} to="/">홈</Nav.Link>
-            <Nav.Link as={Link} to="/regional">지역</Nav.Link>
+            <Nav.Link as={Link} to="/">지역</Nav.Link>
             <Nav.Link as={Link} to="/distance">거리</Nav.Link>
           </Nav>
         </Navbar.Collapse>

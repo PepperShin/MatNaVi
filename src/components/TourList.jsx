@@ -39,6 +39,7 @@ const TourList = ({ areaName }) => {
   //  지역명으로 관광지 데이터 가져오기
   const fetchTouristData = async (locationName) => {
     setLoading(true);
+    hasCalculatedDistance.current = false; // 거리 계산 초기화 (검색 시도 시 초기화)
     try {
       const location = await getCoordinatesByAddress(locationName);
       console.log("좌표 변환 결과:", location);
@@ -78,14 +79,15 @@ const TourList = ({ areaName }) => {
   //  검색 후 지역 변경 처리
   const handleLocationChange = () => {
     if (searchLocation.trim()) {
+      setSortOption("정렬")
       fetchTouristData(searchLocation);
     }
   };
 
-  //  사용자 위치로 거리 계산 (좌표 캐싱 적용)
 // 거리 계산 실행 여부를 관리할 useRef 추가
 const hasCalculatedDistance = useRef(false);
 
+// 거리 계산 useEffect
 useEffect(() => {
     const updateDistances = async () => {
         if (!userLocation || travelList.length === 0 || hasCalculatedDistance.current) return;
@@ -97,19 +99,23 @@ useEffect(() => {
                 let lat = Number(place.mapy) || Number(place.mapY);
                 let lng = Number(place.mapx) || Number(place.mapX);
 
-                if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
+                // 좌표가 없거나 0,0일 경우 캐시 또는 좌표 변환 시도
+                if (!lat || !lng || lat === 0 || lng === 0 || isNaN(lat) || isNaN(lng)) {
                     if (coordinateCache[place.addr1]) {
                         ({ lat, lng } = coordinateCache[place.addr1]);
                     } else {
                         const coord = await getCoordinatesByAddress(place.addr1);
-                        if (coord) {
+                        if (coord && coord.lat !== 0 && coord.lng !== 0) {
                             lat = Number(coord.lat);
                             lng = Number(coord.lng);
                             coordinateCache[place.addr1] = coord;
+                        } else {
+                            return { ...place, distance: "주소 변환 실패" };
                         }
                     }
                 }
 
+                // 유효하지 않은 좌표 처리
                 if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
                     return { ...place, distance: "주소 변환 실패" };
                 }
@@ -122,8 +128,8 @@ useEffect(() => {
                 );
 
                 return {
-                    ...place,
-                    distance: isNaN(distance) ? "계산 실패" : `${distance}`,
+                  ...place,
+                  distance: isNaN(distance) ? "계산 실패" : `${distance.toFixed(2)}`, // 소수점 2자리로 고정
                 };
             })
         );
@@ -133,7 +139,12 @@ useEffect(() => {
     };
 
     updateDistances();
-}, [userLocation, travelList.length]); 
+}, [userLocation, travelList]); // travelList로 의존성 변경
+
+// 지역 변경 시 거리 재계산을 위해 hasCalculatedDistance 초기화
+useEffect(() => {
+    hasCalculatedDistance.current = false;
+}, [areaName]);
 
   //  정렬
   const sortedList = useMemo(() => {
@@ -201,7 +212,7 @@ useEffect(() => {
               <Col>
                 <h5>{item.title}</h5>
                 <p>주소: {item.addr1}</p>
-                <p>거리: {item.distance !== null ? `${item.distance} km` : "계산 중..."}</p>
+                <p>거리: {item.distance && !["계산 실패", "주소 변환 실패"].includes(item.distance)? `${item.distance} km` : item.distance || "계산 중..."}</p>
                 <p>밀집도: {item.density !== undefined ? item.density : "계산 중..."} (반경: {item.radius} km)</p>
 
               </Col>
