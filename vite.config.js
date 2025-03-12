@@ -11,6 +11,13 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/naver-api/, ''),
       },
+      
+      '/naver-local-api': {
+        target: 'https://openapi.naver.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/naver-local-api/, ''),
+      },
+
       '/tour-api': {
         target: 'http://apis.data.go.kr/B551011/KorService1',
         changeOrigin: true,

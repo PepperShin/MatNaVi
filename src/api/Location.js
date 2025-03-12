@@ -1,6 +1,5 @@
 // src/api/Location.js
 
-import { getCoordinates } from "./API";
 
 // 주소 정리 함수 (불필요한 정보 제거)
 export function cleanAddress(address) {
@@ -16,7 +15,6 @@ export function getCurrentLocation(callback) {
             lat: position.coords.latitude,
             lng: position.coords.longitude
           };
-          //console.log("📍 내 위치 (GPS):", userLocation);
           callback(userLocation);
         },
         (error) => {
@@ -24,7 +22,8 @@ export function getCurrentLocation(callback) {
           callback(null); // 실패 시 null 반환
         }
       );
-    } else {
+    } 
+    else {
       console.error("❌ 브라우저가 위치 정보를 지원하지 않습니다.");
       callback(null);
     }
@@ -36,8 +35,8 @@ export function getCurrentLocation(callback) {
         const url = `/naver-api/map-reversegeocode/v2/gc?coords=${lng},${lat}&sourcecrs=EPSG:4326&orders=addr&output=json`;
         const response = await fetch(url, {
             headers: {
-                'X-NCP-APIGW-API-KEY-ID': import.meta.env.VITE_NAVER_CLIENT_ID,
-                'X-NCP-APIGW-API-KEY': import.meta.env.VITE_NAVER_CLIENT_SECRET,
+                'X-NCP-APIGW-API-KEY-ID': import.meta.env.VITE_NAVER_MAP_CLIENT_ID,
+                'X-NCP-APIGW-API-KEY': import.meta.env.VITE_NAVER_MAP_CLIENT_SECRET,
             },
         });
 
@@ -46,33 +45,28 @@ export function getCurrentLocation(callback) {
         }
 
         const data = await response.json();
-        //console.log("📍 내 위치 주소 변환 결과:", data);
 
         if (data.results && data.results.length > 0) {
             return data.results[0].region.area1.name + " " +
                    data.results[0].region.area2.name + " " +
                    data.results[0].region.area3.name;
-        } else {
+        } 
+        else {
             return "주소를 찾을 수 없음";
         }
-    } catch (error) {
+    } 
+    catch (error) {
         console.error("❌ Reverse Geocoding API 요청 실패:", error);
         return null;
     }
 }
 
-// 📍 주소 → 좌표 변환 API 호출 (한 번만 시도)
-export async function retryGetCoordinates(query) {
-  const result = await getCoordinates(query);
-  if (result) return result;
-
-  console.error(`❌ 주소 변환 실패: ${query}`);
-  return null; // 한 번만 시도 후 실패하면 null 반환
-}
 
 
 // 사용자 위치와 관광지 위치를 비교해서 거리(km)를 계산하는 함수
 export function calculateDistance(lat1, lon1, lat2, lon2) {
+
+    //console.log("🔍 거리 계산 좌표 값:", { lat1, lon1, lat2, lon2 });
 
     // 좌표가 숫자인지 확인
     if (![lat1, lon1, lat2, lon2].every(coord => typeof coord === 'number' && !isNaN(coord))) {
@@ -89,7 +83,10 @@ export function calculateDistance(lat1, lon1, lat2, lon2) {
         Math.cos(lat2 * (Math.PI / 180)) *
         Math.sin(dLon / 2) *
         Math.sin(dLon / 2);
+    
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     
-    return Number((R * c).toFixed(2)); // 숫자로 변환하여 반환
+    const distance = R * c;
+    
+    return Math.round(distance * 100) / 100; // 소수점 두 자리로 반올림
 }
