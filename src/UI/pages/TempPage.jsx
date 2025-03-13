@@ -1,9 +1,7 @@
-import React from 'react'
+import React from "react";
 
 const TempPage = () => {
-  return (
-    <div>TempPage</div>
-  )
-}
+  return <div>TempPage</div>;
+};
 
-export default TempPage
+export default TempPage;
