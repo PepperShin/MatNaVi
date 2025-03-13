@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import NaverMapPage from "./NaverMapPage"; // NaverMapPage 불러오기
 
 const TripInfoPage = () => {
   const [nav, setNav] = useState();
@@ -25,26 +26,17 @@ const TripInfoPage = () => {
   return (
     <div className="container mt-5">
       <div className="d-flex flex-column align-items-center">
-        <div
-          className="row bg-secondary p-0"
-          style={{ height: "600px", width: "100%" }}
-        >
+        <div className="row bg-secondary p-0" style={{ height: "600px", width: "100%" }}>
           {/* 사진, 여행지 정보 */}
           <div className="col-lg-8  bg-primary">사진</div>
           <div className="col-lg-4 bg-warning">정보</div>
         </div>
 
-        <div
-          className="bg-secondary"
-          style={{ height: "400px", width: "100%" }}
-        >
-          {/* 지도 */}
+        <div className="bg-secondary" style={{ height: "400px", width: "100%" }}>
+          <NaverMapPage /> {/* 여기에 네이버 지도 추가 */}
         </div>
 
-        <div
-          className="d-flex flex-column bg-light my-5 "
-          style={{ height: "600px", width: "100%" }}
-        >
+        <div className="d-flex flex-column bg-light my-5 " style={{ height: "600px", width: "100%" }}>
           {/* 주변 정보 네비게이션 */}
           <ul className="nav nav-pills nav-fill" style={{ height: "100px" }}>
             {navComponent &&
@@ -60,10 +52,7 @@ const TripInfoPage = () => {
           </ul>
           <div className="bg-secondary flex-grow-1">{buttonComponent[nav]}</div>
         </div>
-        <div
-          className="bg-light my-5"
-          style={{ height: "600px", width: "100%" }}
-        >
+        <div className="bg-light my-5" style={{ height: "600px", width: "100%" }}>
           날씨
         </div>
       </div>

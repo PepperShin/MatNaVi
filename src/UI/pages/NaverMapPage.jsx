@@ -1,50 +1,51 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 
 const NaverMap = () => {
-  const maxMarkers = 5; // 마커 개수 제한
-  let markerList = []; // 마커를 저장할 배열
+  const maxMarkers = 1; // 마커 개수 제한
+  const markerList = useRef([]); // useRef로 마커 리스트 관리
 
   useEffect(() => {
     const { naver } = window;
     if (!naver) return;
 
+    // 마커 생성 함수
+    const createMarker = (map, position) => {
+      const marker = new naver.maps.Marker({
+        position,
+        map,
+      });
+      return marker;
+    };
+
     // 지도 생성 함수
     const createMap = (center) => {
       const map = new naver.maps.Map("map", {
         center: center,
-        zoom: 14,
-        minZoom: 12,
-        maxZoom: 16,
+        zoom: 18,
+        minZoom: 16,
+        maxZoom: 20,
       });
+
+      // 사용자 위치에 초기 마커 추가
+      const initialMarker = createMarker(map, center);
+      markerList.current.push(initialMarker);
 
       // 마우스 클릭 시 마커 추가
       naver.maps.Event.addListener(map, "click", function (e) {
         const markerPosition = e.coord;
 
-        // 만약 마커 개수가 최대값을 초과하면, 가장 오래된 마커 삭제
-        if (markerList.length >= maxMarkers) {
-          const removedMarker = markerList.shift(); // 가장 앞에 있는 마커를 제거
-          removedMarker.setMap(null); // 지도에서 제거
+        // 마커 개수가 최대값이면, 가장 오래된 마커 제거
+        if (markerList.current.length >= maxMarkers) {
+          const removedMarker = markerList.current.shift();
+          removedMarker.setMap(null);
         }
 
-        // 새로운 마커 생성
-        const marker = new naver.maps.Marker({
-          position: markerPosition,
-          map: map,
-        });
-
-        // 마커 클릭 시 정보창 열기
-        const infoWindow = new naver.maps.InfoWindow({
-          content: `<div style="padding:10px;">마커 클릭!</div>`,
-        });
-
-        naver.maps.Event.addListener(marker, "click", function () {
-          infoWindow.open(map, marker);
-        });
-
-        // 새 마커를 리스트에 추가
-        markerList.push(marker);
+        const marker = createMarker(map, markerPosition);
+        markerList.current.push(marker);
       });
+
+      // 클린업 예시 (필요 시 이벤트 리스너 제거)
+      return map;
     };
 
     // 사용자 위치 가져오기
