@@ -1,0 +1,78 @@
+.weather-container {
+  font-family: "Arial", sans-serif; /* 글꼴 */
+  background-color: #f4f4f4;
+  color: #333; /* 텍스트 */
+  padding: 20px;
+  border-radius: 8px;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box; /* padding과 border 포함 */
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.weather-title {
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.weather-week {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px; /* 날씨 카드들 사이에 간격을 설정 */
+  flex-grow: 1; /* 남은 공간을 채우도록 설정 */
+}
+
+.weather-day {
+  flex: 1; /* 각 날씨 카드가 동일한 크기로 늘어나도록 설정 */
+  padding: 10px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  margin: 0; /* 여백 제거 */
+}
+
+.weather-day-name {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.weather-icon {
+  width: 50px; /* 아이콘 크기 증가 */
+  height: 50px; /* 아이콘 크기 증가 */
+  margin-bottom: 10px;
+}
+
+.temperature {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.weather-description {
+  font-size: 14px;
+  color: #555;
+}
+
+.loading,
+.error,
+.no-data {
+  text-align: center;
+  font-size: 18px;
+  margin-top: 20px;
+}
+
+.loading {
+  color: #007bff;
+}
+
+.error {
+  color: #dc3545;
+}
+
+.no-data {
+  color: #6c757d;
+}
