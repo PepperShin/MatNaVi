@@ -54,7 +54,6 @@ const TripInfoPage = () => {
         <div className="bg-light my-5" style={{ flexGrow: 1, width: "100%", height: "100%" }}>
           <WeatherPage />
         </div>
-        z
       </div>
     </div>
   );

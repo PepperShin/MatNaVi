@@ -2,11 +2,13 @@ import axios from "axios";
 import React, { useState, useEffect } from "react";
 import "../../assets/css/weather.css";
 
+// 상태 관리
 const WeatherPage = () => {
   const [forecastData, setForecastData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // 데이터 가져오기
   useEffect(() => {
     const fetchWeatherData = async () => {
       try {
@@ -26,6 +28,7 @@ const WeatherPage = () => {
     fetchWeatherData();
   }, []);
 
+  // loading, error, noData 경우 처리
   if (loading) {
     return <div className="loading">Loading...</div>;
   }
@@ -44,9 +47,10 @@ const WeatherPage = () => {
   // 5일간의 날씨 정보
   const dailyForecast = forecastData.list.filter((item, index) => index % 8 === 0); // 하루에 8번씩 예보가 나오므로, 8번째 데이터만 필터링
 
+  // 날씨 정보 렌더링
   return (
     <div className="weather-container">
-      <h1 className="weather-title">Weekly Forecast</h1>
+      <h1 className="weather-title">주간 날씨 정보</h1>
       <div className="weather-week">
         {dailyForecast.map((item, index) => {
           const date = new Date(item.dt * 1000);
