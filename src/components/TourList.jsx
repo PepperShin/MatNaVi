@@ -20,14 +20,10 @@ const TourList = ({ areaName }) => {
   const itemsPerPage = 5;
   const [userLocation, setUserLocation] = useState(null);
 
-  // 디버깅용 setTravelList 호출 직후 확인용
-  
   useEffect(() => {
     console.log("✅ 업데이트된 travelList:", travelList);
   }, [travelList]);
-  
 
-  //  사용자 현재 위치 가져오기
   useEffect(() => {
     getCurrentLocation((location) => {
       if (location) {
@@ -36,10 +32,11 @@ const TourList = ({ areaName }) => {
     });
   }, []);
 
-  //  지역명으로 관광지 데이터 가져오기
+  // ✅ 지역명으로 관광지 데이터 가져오기
   const fetchTouristData = async (locationName) => {
     setLoading(true);
-    hasCalculatedDistance.current = false; // 거리 계산 초기화 (검색 시도 시 초기화)
+    hasCalculatedDistance.current = false; // 거리 계산 초기화
+
     try {
       const location = await getCoordinatesByAddress(locationName);
       console.log("좌표 변환 결과:", location);
@@ -50,15 +47,15 @@ const TourList = ({ areaName }) => {
       let combinedData = [];
 
       for (const id of contentTypeIds) {
-        const attractions = await getTouristAttractions(lat, lng, id);
+        const attractions = await getTouristAttractions(lat, lng, id, locationName); // ✅ 지역명 전달
         combinedData = combinedData.concat(attractions);
       }
+
       console.log("최종 관광지 데이터:", combinedData);
 
       const densityData = await calculateDynamicDensity(combinedData);
       console.log("밀집도 데이터:", densityData);
 
-      // 밀집도 데이터가 있는 경우만 업데이트
       if (densityData && densityData.length > 0) {
         setTravelList(densityData);
       }
@@ -69,84 +66,80 @@ const TourList = ({ areaName }) => {
     }
   };
 
-  //  페이지 로드 시 초기 데이터 가져오기
+  // ✅ 페이지 로드 시 초기 데이터 가져오기
   useEffect(() => {
     if (areaName) {
       fetchTouristData(areaName);
     }
   }, [areaName]);
 
-  //  검색 후 지역 변경 처리
+  // ✅ 검색 후 지역 변경 처리
   const handleLocationChange = () => {
     if (searchLocation.trim()) {
-      setSortOption("정렬")
+      setSortOption("정렬");
       fetchTouristData(searchLocation);
     }
   };
 
-// 거리 계산 실행 여부를 관리할 useRef 추가
-const hasCalculatedDistance = useRef(false);
+  const hasCalculatedDistance = useRef(false);
 
-// 거리 계산 useEffect
-useEffect(() => {
+  // ✅ 거리 계산
+  useEffect(() => {
     const updateDistances = async () => {
-        if (!userLocation || travelList.length === 0 || hasCalculatedDistance.current) return;
+      if (!userLocation || travelList.length === 0 || hasCalculatedDistance.current) return;
 
-        const updatedItems = await Promise.all(
-            travelList.map(async (place) => {
-                if (place.distance && place.distance !== "계산 중...") return place;
+      const updatedItems = await Promise.all(
+        travelList.map(async (place) => {
+          if (place.distance && place.distance !== "계산 중...") return place;
 
-                let lat = Number(place.mapy) || Number(place.mapY);
-                let lng = Number(place.mapx) || Number(place.mapX);
+          let lat = Number(place.mapy) || Number(place.mapY);
+          let lng = Number(place.mapx) || Number(place.mapX);
 
-                // 좌표가 없거나 0,0일 경우 캐시 또는 좌표 변환 시도
-                if (!lat || !lng || lat === 0 || lng === 0 || isNaN(lat) || isNaN(lng)) {
-                    if (coordinateCache[place.addr1]) {
-                        ({ lat, lng } = coordinateCache[place.addr1]);
-                    } else {
-                        const coord = await getCoordinatesByAddress(place.addr1);
-                        if (coord && coord.lat !== 0 && coord.lng !== 0) {
-                            lat = Number(coord.lat);
-                            lng = Number(coord.lng);
-                            coordinateCache[place.addr1] = coord;
-                        } else {
-                            return { ...place, distance: "주소 변환 실패" };
-                        }
-                    }
-                }
+          if (!lat || !lng || lat === 0 || lng === 0 || isNaN(lat) || isNaN(lng)) {
+            if (coordinateCache[place.addr1]) {
+              ({ lat, lng } = coordinateCache[place.addr1]);
+            } else {
+              const coord = await getCoordinatesByAddress(place.addr1);
+              if (coord && coord.lat !== 0 && coord.lng !== 0) {
+                lat = Number(coord.lat);
+                lng = Number(coord.lng);
+                coordinateCache[place.addr1] = coord;
+              } else {
+                return { ...place, distance: "주소 변환 실패" };
+              }
+            }
+          }
 
-                // 유효하지 않은 좌표 처리
-                if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
-                    return { ...place, distance: "주소 변환 실패" };
-                }
+          if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
+            return { ...place, distance: "주소 변환 실패" };
+          }
 
-                const distance = calculateDistance(
-                    Number(userLocation.lat),
-                    Number(userLocation.lng),
-                    lat,
-                    lng
-                );
+          const distance = calculateDistance(
+            Number(userLocation.lat),
+            Number(userLocation.lng),
+            lat,
+            lng
+          );
 
-                return {
-                  ...place,
-                  distance: isNaN(distance) ? "계산 실패" : `${distance.toFixed(2)}`, // 소수점 2자리로 고정
-                };
-            })
-        );
+          return {
+            ...place,
+            distance: isNaN(distance) ? "계산 실패" : `${distance.toFixed(2)}`,
+          };
+        })
+      );
 
-        setTravelList(updatedItems);
-        hasCalculatedDistance.current = true; // 한 번만 실행하도록 설정
+      setTravelList(updatedItems);
+      hasCalculatedDistance.current = true;
     };
 
     updateDistances();
-}, [userLocation, travelList]); // travelList로 의존성 변경
+  }, [userLocation, travelList]);
 
-// 지역 변경 시 거리 재계산을 위해 hasCalculatedDistance 초기화
-useEffect(() => {
+  useEffect(() => {
     hasCalculatedDistance.current = false;
-}, [areaName]);
+  }, [areaName]);
 
-  //  정렬
+  // ✅ 정렬
   const sortedList = useMemo(() => {
     let sorted = [...travelList];
     switch (sortOption) {
@@ -212,9 +205,8 @@ useEffect(() => {
               <Col>
                 <h5>{item.title}</h5>
                 <p>주소: {item.addr1}</p>
-                <p>거리: {item.distance && !["계산 실패", "주소 변환 실패"].includes(item.distance)? `${item.distance} km` : item.distance || "계산 중..."}</p>
+                <p>거리: {item.distance || "계산 중..."}</p>
                 <p>밀집도: {item.density !== undefined ? item.density : "계산 중..."} (반경: {item.radius} km)</p>
-
               </Col>
             </Row>
           </Link>

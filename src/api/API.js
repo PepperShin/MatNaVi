@@ -3,31 +3,41 @@
 
 // 한국관광공사 API - 관광지 정보 조회
 const TOUR_API_BASE_URL = "http://apis.data.go.kr/B551011/KorService1";
+const apiKey = import.meta.env.VITE_TOUR_ENCODING_KEY;
 
-export async function getTouristAttractions(lat, lng, contentTypeId) {
-    const apiKey = import.meta.env.VITE_TOUR_DECODING_KEY;  // API 키 가져오기
-    const encodedApiKey = encodeURIComponent(apiKey); // API 키 인코딩
+// 관광지 정보 조회 함수
+export async function getTouristAttractions(lat, lng, contentTypeId, regionName) {
+  const url = `${TOUR_API_BASE_URL}/locationBasedList1?serviceKey=${apiKey}&MobileOS=ETC&MobileApp=TestApp&mapX=${lng}&mapY=${lat}&radius=10000&numOfRows=1000&contentTypeId=${contentTypeId}&_type=json`;
 
-    const url = `${TOUR_API_BASE_URL}/locationBasedList1?serviceKey=${encodedApiKey}&MobileOS=ETC&MobileApp=TestApp&arrange=A&mapX=${lng}&mapY=${lat}&radius=10000&numOfRows=1000&contentTypeId=${contentTypeId}&_type=json`;
-    console.log("관광지 API 요청 URL:", url); // 요청 URL 확인용 로그
+  console.log("✅ 관광지 API 요청 URL:", url);
+  console.log("✅ 필터링할 지역명:", regionName);
 
-    try {
-        const response = await fetch(url);
-        const data = await response.json(); // JSON 변환
-
-        // 응답 데이터 확인
-        console.log("✅ API 응답 데이터:", data);
-
-        // totalCount 값 확인
-        console.log("✅ totalCount:", data.response.body.totalCount);
-
-        return data.response.body.items.item || []; // API 응답에서 실제 데이터 추출
-    } 
-    catch (error) {
-        console.error("관광지 정보 가져오기 실패:", error);
-        return [];
+  try {
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`❌ API 호출 실패: ${response.status}`);
     }
+
+    const data = await response.json();
+
+    console.log("✅ 가져온 관광지 데이터:", data);
+
+    const attractions = data?.response?.body?.items?.item || [];
+
+    const filteredAttractions = attractions.filter((item) =>
+      item.addr1 && item.addr1.includes(regionName)
+    );
+
+    console.log("✅ 필터링된 관광지 데이터:", filteredAttractions);
+
+    return filteredAttractions;
+  } catch (error) {
+    console.error("❌ 관광지 정보 가져오기 실패:", error);
+    return [];
+  }
 }
+
 
   
 
