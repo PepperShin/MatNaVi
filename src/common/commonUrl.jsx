@@ -8,7 +8,7 @@ export const createAPIUrl = (path, params = {}) => {
 
     // 기본 파라미터 설정
     const defaultParams = {
-      numOfRows: 10,
+      numOfRows: 50,
       pageNo: 1,
       MobileOS: "AND",
       MobileApp: "AppTest",

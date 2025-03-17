@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { createAPIUrl } from "../../common/commonUrl";
+import { xml2js } from "xml-js";
 
 const TourDetail = ({contentId, setAreaCode, setSigunguCode}) => {
     const [detailData, setDetailData] = useState(null);
@@ -8,7 +9,7 @@ const TourDetail = ({contentId, setAreaCode, setSigunguCode}) => {
 
     useEffect(() => {
         getDetailInfo();
-    }, [])
+    }, [contentId])
 
     const setProps = async (data) => {
         setAreaCode(data.areacode);
@@ -24,6 +25,7 @@ const TourDetail = ({contentId, setAreaCode, setSigunguCode}) => {
                 addrinfoYN: "Y",
                 mapinfoYN: "Y",
                 overviewYN: "Y",
+                defaultYN: "Y",
             }));
 
             if (response.data.response.header.resultMsg === 'OK') {
@@ -43,7 +45,7 @@ const TourDetail = ({contentId, setAreaCode, setSigunguCode}) => {
             <div style={{display:'flex', width: "50%"}}>
                 <img style={{width:'100%'}} src={detailData?.firstimage} alt={detailData?.title} />
             </div>
-            <div style={{display:'flex', width: "50%"}}>
+            <div style={{display:'flex', width: "50%", flexDirection:'column', gap:10}}>
                 <h2>{detailData?.title}</h2>
                 <span style={{width:'100%'}}>{detailData?.overview}</span>
             </div>

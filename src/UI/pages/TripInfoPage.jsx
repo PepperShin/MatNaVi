@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import TourDetail from "../components/TourDetail";
 import TourInfo from "../components/TourInfo";
 
-const TripInfoPage = ({keyword}) => {
+const TripInfoPage = ({keyword, contentId}) => {
   const [nav, setNav] = useState("tourloc"); // 기본값: 주변 여행지
   const [areaCode, setAreaCode] = useState(0);
   const [sigunguCode, setSigunguCode] = useState(0);
@@ -24,7 +24,8 @@ const TripInfoPage = ({keyword}) => {
       <div className="d-flex flex-column align-items-center">
         {/* 사진 및 여행지 정보 */}
         <div className="row bg-secondary p-0" style={{ height: "600px", width: "100%" }}>
-          <TourDetail contentId={126508} setAreaCode={setAreaCode} setSigunguCode={setSigunguCode}/>
+          {/* TODO contentId 필요 */}
+          <TourDetail contentId={contentId} setAreaCode={setAreaCode} setSigunguCode={setSigunguCode}/> 
         </div>
 
         {/* 지도 표시 */}

@@ -3,11 +3,11 @@ import axios from "axios";
 import { createAPIUrl } from "../../common/commonUrl";
 
 const TourInfo = ({ selectedTab, keyword, areaCode, sigunguCode }) => {
-  const [data, setData] = useState([]); //숙소 정보
+  const [data, setData] = useState([]);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (areaCode) {
+    if (areaCode || selectedTab === "tourloc") {
       fetchData();
     }
   }, [selectedTab, areaCode]);
@@ -60,7 +60,6 @@ const TourInfo = ({ selectedTab, keyword, areaCode, sigunguCode }) => {
       const response = await axios.get(createAPIUrl("searchKeyword1", {
         arrange: "A",
         keyword: keyword,
-        areaCode: areaCode,
         listYN: "Y",
       })); //다른 여행지 정보
       setData(response?.data?.response?.body?.items?.item || []);
