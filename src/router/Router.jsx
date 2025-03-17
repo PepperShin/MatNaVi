@@ -11,8 +11,8 @@ export const routeConfig = [
     path: "/",
     element: <MainPage />,
   },
-  { 
-    path: "next", 
+  {
+    path: "next",
     element: <NextPage /> 
   },
 ];
