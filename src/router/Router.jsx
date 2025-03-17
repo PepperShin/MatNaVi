@@ -1,6 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom';
-import HomePage from '../UI/pages/HomePage';
-import RegionalPage from '../UI/pages/RegionalPage';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 import DistancePage from '../UI/pages/DistancePage';
 
 const routes = [
@@ -9,10 +7,6 @@ const routes = [
         element: <Navigate to="/regional" replace />
   },
     
-  {
-    path: '/regional',
-    element: <RegionalPage />
-  },
   {
     path: '/distance',
     element: <DistancePage />

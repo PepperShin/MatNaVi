@@ -10,12 +10,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "axios": "^1.8.3",
     "bootstrap": "^5.3.3",
-    "styled-components": "^6.1.12",
+    "js-yaml": "^4.1.0",
+    "react": "^19.0.0",
+    "react-bootstrap": "^2.10.9",
+    "react-dom": "^19.0.0",
     "react-router-dom": "^6.26.0",
-    "axios": "1.8.1"
+    "styled-components": "^6.1.12"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
