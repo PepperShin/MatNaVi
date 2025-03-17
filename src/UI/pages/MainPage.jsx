@@ -96,7 +96,7 @@ function MainPage() {
     };
 
     // 왼쪽 섹션 데이터를 "/next-left" 라우트로 전송
-    navigate("/next-left", { state: leftData });
+    navigate("/next", { state: leftData });
   };
 
   const handleRightSubmit = () => {
@@ -108,7 +108,7 @@ function MainPage() {
     };
 
     // 오른쪽 섹션 데이터를 "/next-right" 라우트로 전송
-    navigate("/next-right", { state: rightData });
+    navigate("/next", { state: rightData });
   };
 
   return (

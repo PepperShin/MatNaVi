@@ -9,7 +9,7 @@ function NextPage() {
   const formData = location.state || {};
 
   const goBack = () => {
-    navigate("/main");
+    navigate("/");
   };
 
   return (
