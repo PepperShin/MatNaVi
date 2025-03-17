@@ -10,7 +10,7 @@ function Part1() {
 
   return (
     <div>
-      <h1>파트1 페이지</h1>
+      <h1>여행지 추천</h1>
       <button onClick={goToMain}>메인으로 이동</button>
     </div>
   );
