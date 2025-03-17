@@ -8,6 +8,7 @@ import { Button, Col, Form, Row } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { paginate } from "../utils/Pagination.js";
 import { calculateDistance, getCurrentLocation } from "../api/Location.js";
+import TourImage from "./TourImage";
 
 const coordinateCache = {}; // 좌표 캐싱
 
@@ -197,18 +198,17 @@ const TourList = ({ areaName }) => {
         currentItems.map((item) => (
           <Link to={`/travel/${item.contentid}`} key={item.contentid} style={{ textDecoration: "none", color: "inherit" }}>
             <Row className="border p-3 mb-2">
-              <Col xs={3} md={2}>
-                <div className="bg-secondary text-white d-flex align-items-center justify-content-center" style={{ height: "100px" }}>
-                  여행지 사진
-                </div>
+              <Col xs={12} md={4}> {/* 이미지 영역을 조금 더 넓게 */}
+                <TourImage spotName={item.title} description={item.overview || "설명 정보가 없습니다."} />
               </Col>
-              <Col>
-                <h5>{item.title}</h5>
+              <Col className="d-flex flex-column justify-content-center">
+                <h5 className="mb-3">{item.title}</h5>
                 <p>주소: {item.addr1}</p>
                 <p>거리: {item.distance ? `${item.distance}km` : "계산 중..."}</p>
                 <p>밀집도: {item.density !== undefined ? item.density : "계산 중..."} (반경: {item.radius} km)</p>
               </Col>
             </Row>
+            
           </Link>
         ))
       )}

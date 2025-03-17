@@ -23,6 +23,13 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/tour-api/, ''),
       },
+      
+      '/google-api': {
+        target: 'https://www.googleapis.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/google-api/, ''),
+      },
+
     },
   },
 });

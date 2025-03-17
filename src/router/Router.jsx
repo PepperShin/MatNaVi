@@ -12,12 +12,18 @@ const routes = [
         path: '/',
         element: <Navigate to="/regional" replace />
   },
-  */
+ 
   {
     path: '/',
     element: <Navigate to="/regional/수원" replace /> // 기본값을 수원으로 지정
   },
-    
+  */ 
+
+  {
+    path: '/',
+    element: <RegionalPage />
+  },
+
   {
     path: '/regional/:areaName',
     element: <RegionalPage />

@@ -15,11 +15,14 @@ const RegionalPage = () => {
     }
   }, [areaName, navigate]);
 
+  const handleDataComplete = (data) => {
+    console.log("✅ 최종 데이터:", data);
+  };
   return (
     <>
       <Header />
       <Container className="my-4">
-        <TourList areaName={areaName} /> {/* 지역명 props로 전달 */}
+      <TourList areaName={areaName} onDataComplete={handleDataComplete} /> {/* 지역명 props로 전달 */}
       </Container>
     </>
   );
