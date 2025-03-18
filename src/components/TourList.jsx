@@ -5,7 +5,7 @@ import { getTouristAttractions, getCoordinatesByAddress } from "../api/API";
 import { calculateDynamicDensity } from "../utils/Density";
 import PaginationComponent from "./PaginationComponent";
 import { Button, Col, Form, Row } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { paginate } from "../utils/Pagination.js";
 import { calculateDistance, getCurrentLocation } from "../api/Location.js";
 import TourImage from "./TourImage";
@@ -13,6 +13,7 @@ import TourImage from "./TourImage";
 const coordinateCache = {}; // 좌표 캐싱
 
 const TourList = ({ areaName }) => {
+  const navigate = useNavigate(); // URL 변경을 위한 navigate
   const [searchLocation, setSearchLocation] = useState("");
   const [travelList, setTravelList] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -33,7 +34,7 @@ const TourList = ({ areaName }) => {
     });
   }, []);
 
-  // ✅ 지역명으로 관광지 데이터 가져오기
+  // 지역명으로 관광지 데이터 가져오기
   const fetchTouristData = async (locationName) => {
     setLoading(true);
     hasCalculatedDistance.current = false; // 거리 계산 초기화
@@ -48,7 +49,7 @@ const TourList = ({ areaName }) => {
       let combinedData = [];
 
       for (const id of contentTypeIds) {
-        const attractions = await getTouristAttractions(lat, lng, id, locationName); // ✅ 지역명 전달
+        const attractions = await getTouristAttractions(lat, lng, id, locationName); // 지역명 전달
         combinedData = combinedData.concat(attractions);
       }
 
@@ -67,24 +68,24 @@ const TourList = ({ areaName }) => {
     }
   };
 
-  // ✅ 페이지 로드 시 초기 데이터 가져오기
+  // 페이지 로드 시 초기 데이터 가져오기
   useEffect(() => {
     if (areaName) {
       fetchTouristData(areaName);
     }
   }, [areaName]);
 
-  // ✅ 검색 후 지역 변경 처리
+  // 검색 버튼 클릭 시 URL 변경 → RegionalPage가 다시 렌더링됨
   const handleLocationChange = () => {
     if (searchLocation.trim()) {
-      setSortOption("정렬");
-      fetchTouristData(searchLocation);
+      navigate(`/regional/${searchLocation}`); // 검색 후 URL 변경
     }
   };
 
+  
   const hasCalculatedDistance = useRef(false);
 
-  // ✅ 거리 계산
+  // 거리 계산
   useEffect(() => {
     const updateDistances = async () => {
       if (!userLocation || travelList.length === 0 || hasCalculatedDistance.current) return;
@@ -140,7 +141,7 @@ const TourList = ({ areaName }) => {
     hasCalculatedDistance.current = false;
   }, [areaName]);
 
-  // ✅ 정렬
+  // 정렬
   const sortedList = useMemo(() => {
     let sorted = [...travelList];
     switch (sortOption) {
