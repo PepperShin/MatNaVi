@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { getTouristAttractions, getAreaAndSigunguCode, getCoordinatesByAddress } from "../api/API";
 import PaginationComponent from "./PaginationComponent";
 import { Button, Col, Form, Row } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { paginate } from "../utils/Pagination.js";
 import { calculateDistance, getCurrentLocation } from "../api/Location.js";
 import TourImage from "./TourImage";
@@ -68,19 +68,28 @@ const cityData = {
 };
 
 
-const TourList = ({ province, city }) => {
-  const navigate = useNavigate();
-  const [selectedProvince, setSelectedProvince] = useState(province || "경기도");
-  const [selectedCity, setSelectedCity] = useState(city || "수원시");
+const TourList = ({ selectedProvince, selectedCity, setSelectedProvince, setSelectedCity }) => {
+  
   const [travelList, setTravelList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [sortOption, setSortOption] = useState("정렬");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+
   const [userLocation, setUserLocation] = useState(null);
   const hasCalculatedDistance = useRef(false);
-  const [mapCenter, setMapCenter] = useState({ lat: 37.5665, lng: 126.9780 }); // 기본값: 서울 좌표
 
+  // 도 선택 변경 시
+  const handleProvinceChange = (e) => {
+    const newProvince = e.target.value;
+    setSelectedProvince(newProvince);
+    setSelectedCity(cityData[newProvince][0]); // 해당 도의 첫 번째 시/군 자동 선택
+  };
+  
+  // 시/군 선택 변경 시
+  const handleCityChange = (e) => {
+    setSelectedCity(e.target.value);
+  };
 
   useEffect(() => {
     getCurrentLocation((location) => {
@@ -90,19 +99,12 @@ const TourList = ({ province, city }) => {
     });
   }, []);
 
-  // 도 선택 시 해당하는 시군구 리스트로 변경
-  useEffect(() => {
-    if (!cityData[selectedProvince].includes(selectedCity)) {
-      setSelectedCity(cityData[selectedProvince][0]);
-    }
-  }, [selectedProvince]);
-
   // 관광지 정보 가져오기
   const fetchTouristData = async () => {
     setLoading(true);
     try {
       const { areaCode, sigunguCode } = getAreaAndSigunguCode(selectedProvince, selectedCity);
-      console.log("🔍 검색 지역 코드:", areaCode, sigunguCode);
+      //console.log("🔍 검색 지역 코드:", areaCode, sigunguCode);
       if (!areaCode) return console.error("❌ 지역코드 없음");
   
       const contentTypeIds = [12, 14, 15];
@@ -114,11 +116,11 @@ const TourList = ({ province, city }) => {
         combinedData = combinedData.concat(attractions);
       }
   
-      console.log("✅ 최종 관광지 데이터:", combinedData);
+      //console.log("✅ 최종 관광지 데이터:", combinedData);
   
       // ✅ 밀집도 계산 적용
       const dataWithDensity = await calculateDynamicDensity(combinedData);
-      console.log("📌 밀집도 계산 완료:", dataWithDensity);
+      // console.log("📌 밀집도 계산 완료:", dataWithDensity);
   
       setTravelList(dataWithDensity); // 밀집도 포함된 데이터 저장
   
@@ -170,13 +172,7 @@ const TourList = ({ province, city }) => {
   useEffect(() => {
     hasCalculatedDistance.current = false;
     fetchTouristData();
-    getCoordinatesByAddress(selectedProvince, selectedCity).then((coords) => {
-      if (coords) {
-        console.log("🗺️ 새로운 지도 좌표:", coords);
-        setMapCenter(coords);
-      }
-    });
-}, [selectedCity]);
+  }, [selectedProvince, selectedCity]);  // ✅ useEffect 닫는 부분 수정
 
 
   // 정렬
@@ -184,17 +180,17 @@ const TourList = ({ province, city }) => {
     let sorted = [...travelList];
     switch (sortOption) {
       case "별점순":
-        sorted.sort((a, b) => b.rating - a.rating);
+        sorted.sort((a, b) => (b.rating || 0) - (a.rating || 0)); // ✅ rating이 없을 경우 0으로 처리
         break;
       case "거리순":
         sorted.sort((a, b) => {
-          const distanceA = parseFloat(a.distance);
-          const distanceB = parseFloat(b.distance);
-          return (isNaN(distanceA) ? Infinity : distanceA) - (isNaN(distanceB) ? Infinity : distanceB);
+          const distanceA = parseFloat(a.distance) || Infinity;
+          const distanceB = parseFloat(b.distance) || Infinity;
+          return distanceA - distanceB;
         });
         break;
       case "여행지 밀집도순":
-        sorted.sort((a, b) => b.density - a.density);
+        sorted.sort((a, b) => (b.density || 0) - (a.density || 0)); // ✅ density 없을 경우 0으로 처리
         break;
       default:
         break;

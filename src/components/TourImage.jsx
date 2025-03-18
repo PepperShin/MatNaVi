@@ -22,8 +22,6 @@ export default function TourImage({ spotName, description }) {
       // 환경 변수에서 API 키와 검색 엔진 ID를 불러옵니다.
       const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
       const SEARCH_ENGINE_ID = import.meta.env.VITE_SEARCH_ENGINE_ID;
-      console.log(import.meta.env.VITE_GOOGLE_API_KEY);
-
       await new Promise(resolve => setTimeout(resolve, 500)); // 0.5초 지연
 
       const response = await fetch(
@@ -37,7 +35,7 @@ export default function TourImage({ spotName, description }) {
       }
 
       const data = await response.json();
-      console.log(data)
+      // console.log(data)
 
       if (data.items && data.items.length > 0) {
         const validImage = data.items.find(item => item.link.startsWith('http'));

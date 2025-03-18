@@ -1,9 +1,21 @@
+// src/components/DestinationMap.jsx
+
 import React, { useEffect, useRef } from "react";
 
 export default function DestinationMap({ lat, lng, zoom = 14 }) {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
 
+  useEffect(() => {
+    if (mapInstance.current) {
+      const newCenter = new window.naver.maps.LatLng(lat, lng);
+      //console.log("🗺️ 지도 중심 업데이트:", newCenter);
+      mapInstance.current.setCenter(newCenter); // 직접 지도 변경
+    }else {
+      console.warn("🚨 지도 인스턴스 없음. 다시 초기화 필요!");
+    }
+  }, [lat, lng]);
+  
   // Naver Maps 스크립트 로드 함수
   const loadNaverMapScript = () => {
     return new Promise((resolve, reject) => {
@@ -28,35 +40,26 @@ export default function DestinationMap({ lat, lng, zoom = 14 }) {
         center: new window.naver.maps.LatLng(lat, lng),
         zoom: zoom,
       });
-
-      console.log("🗺️ 지도 초기화 완료");
     }
   };
 
-  // lat, lng 변경 시 지도 중심 업데이트
-  const updateMapCenter = () => {
-    if (mapInstance.current) {
-      const newCenter = new window.naver.maps.LatLng(lat, lng);
-      console.log("🗺️ 지도 중심 업데이트:", newCenter);
-      mapInstance.current.setCenter(newCenter);
-      mapInstance.current.panTo(newCenter); // 🛠️ 지도 애니메이션 이동
-    }
-  };
-
-  // 초기 로딩 시 지도 생성 및 중심 좌표 설정
+  // 초기 로딩 시 지도 생성
   useEffect(() => {
     loadNaverMapScript()
       .then(() => {
         initMap();
-        setTimeout(updateMapCenter, 500); // 지도 초기화 후 0.5초 뒤 업데이트
       })
       .catch((err) => console.error("❌ 지도 로드 실패:", err));
   }, []);
 
   // lat, lng 변경 시 지도 중심 업데이트
   useEffect(() => {
-    setTimeout(updateMapCenter, 500); // 지도 중심 좌표 0.5초 후 업데이트
+    if (mapInstance.current) {
+      const newCenter = new window.naver.maps.LatLng(lat, lng);
+      //console.log("🗺️ 지도 중심 업데이트:", newCenter);
+      mapInstance.current.setCenter(newCenter);
+    }
   }, [lat, lng]);
 
   return <div ref={mapRef} style={{ width: "100%", height: "100%" }} />;
-}
+};

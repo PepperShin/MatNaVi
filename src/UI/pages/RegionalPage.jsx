@@ -11,8 +11,12 @@ import DestinationMap from "../../components/DestinationMap";
 const RegionalPage = () => {
   const { province, city } = useParams(); // URL에서 지역명 가져오기
   const navigate = useNavigate();
+
+  // 선택된 지역 상태를 RegionalPage에서 관리
+  const [selectedProvince, setSelectedProvince] = useState(province || "경기도");
+  const [selectedCity, setSelectedCity] = useState(city || "수원시");
   const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
-  
+
   // URL에 지역 정보가 없으면 기본값으로 이동
   useEffect(() => {
     if (!province || !city) {
@@ -20,20 +24,20 @@ const RegionalPage = () => {
     }
   }, [province, city, navigate]);
 
-  // 지역명으로 위도/경도 가져오기
+  // 지역명 변경 시 지도 좌표 업데이트
   useEffect(() => {
-    const fetchCoordinates = async () => {
-      if (province && city) {
-        const result = await getCoordinatesByAddress(province, city);
-        if (result) {
-          setCoordinates(result);
+    if (selectedProvince && selectedCity) {
+      getCoordinatesByAddress(selectedProvince, selectedCity).then((coords) => {
+        console.log("📍 API에서 받은 새로운 좌표:", coords);
+        if (coords) {
+          setCoordinates(coords);
         } else {
-          console.error("❌ 좌표를 찾을 수 없습니다:", province, city);
+          console.error("❌ 좌표를 찾을 수 없습니다:", selectedProvince, selectedCity);
         }
-      }
-    };
-    fetchCoordinates();
-  }, [province, city]);
+      });
+    }
+  }, [selectedProvince, selectedCity]);
+  
 
 
   const handleDataComplete = (data) => {
@@ -51,7 +55,13 @@ const RegionalPage = () => {
         ) : (
           <p>Loading map...</p>
         )}
-      <TourList province={province} city={city} onDataComplete={handleDataComplete} /> {/* 지역명 props로 전달 */}
+        {/* TourList에 상태를 props로 전달하여 동기화 */}
+        <TourList
+            selectedProvince={selectedProvince}
+            selectedCity={selectedCity}
+            setSelectedProvince={setSelectedProvince}
+            setSelectedCity={setSelectedCity}
+          />
       </Container>
     </>
   );

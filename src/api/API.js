@@ -87,15 +87,21 @@ const SIGUNGU_CODE_MAPPING = {
 // `도 + 시군구`를 `지역코드 + 시군구코드`로 변환하는 함수
 export function getAreaAndSigunguCode(province, city) {
   const areaCode = AREA_CODE_MAPPING[province] || null;
-  const sigunguCode = SIGUNGU_CODE_MAPPING[province]?.[city] || null;
+  let sigunguCode = SIGUNGU_CODE_MAPPING[province]?.[city] || null;
 
-  console.log("지역코드 ", areaCode, sigunguCode)
+  //console.log("지역코드 ", areaCode, sigunguCode)
+
 
   if (!areaCode) {
     console.warn(`❌ ${province}의 지역코드를 찾을 수 없습니다.`);
   }
   if (!sigunguCode) {
     console.warn(`⚠️ ${province} ${city}의 시군구 코드를 찾을 수 없습니다.`);
+  }
+
+  // 제주도 예외 처리 (sigunguCode 제거)
+  if (province === "제주특별자치도") {
+    sigunguCode = null;
   }
 
   return { areaCode, sigunguCode };
@@ -109,11 +115,12 @@ const apiKey = import.meta.env.VITE_TOUR_ENCODING_KEY;
 export async function getTouristAttractions(areaCode, sigunguCode, contentTypeId) {
   let url = `${TOUR_API_BASE_URL}/areaBasedList1?serviceKey=${apiKey}&MobileOS=ETC&MobileApp=TestApp&numOfRows=1000&contentTypeId=${contentTypeId}&_type=json&areaCode=${areaCode}`;
 
+  // sigunguCode가 있을 때만 추가
   if (sigunguCode) {
     url += `&sigunguCode=${sigunguCode}`;
   }
 
-  console.log("✅ 관광지 API 요청 URL:", url);
+  //console.log("✅ 관광지 API 요청 URL:", url);
 
   try {
     const response = await fetch(url);
@@ -123,7 +130,7 @@ export async function getTouristAttractions(areaCode, sigunguCode, contentTypeId
     }
 
     const data = await response.json();
-    console.log("✅ 가져온 관광지 데이터:", data);
+    //console.log("✅ 가져온 관광지 데이터:", data);
 
     if (!data.response || !data.response.body || !data.response.body.items) {
       console.warn("❌ 관광지 API 응답에 데이터 없음:", data);
@@ -143,7 +150,7 @@ export async function getTouristAttractions(areaCode, sigunguCode, contentTypeId
 export async function getCoordinatesByAddress(province, city) {
   try {
     const query = `${province} ${city}`;
-    console.log("🔍 검색할 주소:", query);
+    //console.log("🔍 검색할 주소:", query);
 
     const response = await fetch(`/naver-api/map-geocode/v2/geocode?query=${encodeURIComponent(query)}`, {
       headers: {
@@ -158,7 +165,7 @@ export async function getCoordinatesByAddress(province, city) {
     }
 
     const data = await response.json();
-    console.log("📍 API 응답 데이터:", data);
+    //console.log("📍 API 응답 데이터:", data);
 
     if (!data.addresses || data.addresses.length === 0) {
       console.warn("📍 네이버 API에서 좌표를 찾지 못함:", query);
@@ -170,7 +177,7 @@ export async function getCoordinatesByAddress(province, city) {
     );
 
     if (matchedAddress) {
-      console.log("✅ 매칭된 주소:", matchedAddress.roadAddress);
+      //console.log("✅ 매칭된 주소:", matchedAddress.roadAddress);
       return {
         lat: parseFloat(matchedAddress.y),
         lng: parseFloat(matchedAddress.x),
