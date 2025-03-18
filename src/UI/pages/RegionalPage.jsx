@@ -1,3 +1,5 @@
+// src/UI/pages/RegionalPage.jsx
+
 import React, { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
 import Header from "../../components/Header";
@@ -7,30 +9,31 @@ import { getCoordinatesByAddress } from "../../api/API";
 import DestinationMap from "../../components/DestinationMap";
 
 const RegionalPage = () => {
-  const { areaName } = useParams(); // URL에서 지역명 가져오기
+  const { province, city } = useParams(); // URL에서 지역명 가져오기
   const navigate = useNavigate();
   const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
-  // 지역명이 없는 경우 "수원"으로 리디렉션
+  
+  // URL에 지역 정보가 없으면 기본값으로 이동
   useEffect(() => {
-    if (!areaName) {
-      navigate("/regional/수원", { replace: true });
+    if (!province || !city) {
+      navigate("/regional/경기도/수원시", { replace: true });
     }
-  }, [areaName, navigate]);
+  }, [province, city, navigate]);
 
   // 지역명으로 위도/경도 가져오기
   useEffect(() => {
     const fetchCoordinates = async () => {
-      if (areaName) {
-        const result = await getCoordinatesByAddress(areaName);
+      if (province && city) {
+        const result = await getCoordinatesByAddress(province, city);
         if (result) {
           setCoordinates(result);
         } else {
-          console.error("❌ 좌표를 찾을 수 없습니다:", areaName);
+          console.error("❌ 좌표를 찾을 수 없습니다:", province, city);
         }
       }
     };
     fetchCoordinates();
-  }, [areaName]);
+  }, [province, city]);
 
 
   const handleDataComplete = (data) => {
@@ -48,7 +51,7 @@ const RegionalPage = () => {
         ) : (
           <p>Loading map...</p>
         )}
-      <TourList areaName={areaName} onDataComplete={handleDataComplete} /> {/* 지역명 props로 전달 */}
+      <TourList province={province} city={city} onDataComplete={handleDataComplete} /> {/* 지역명 props로 전달 */}
       </Container>
     </>
   );

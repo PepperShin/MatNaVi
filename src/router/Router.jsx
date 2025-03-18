@@ -12,20 +12,14 @@ const routes = [
         path: '/',
         element: <Navigate to="/regional" replace />
   },
- 
+  */
   {
     path: '/',
-    element: <Navigate to="/regional/수원" replace /> // 기본값을 수원으로 지정
-  },
-  */ 
-
-  {
-    path: '/',
-    element: <RegionalPage />
+    element: <Navigate to="/regional/경기도/수원시" replace />, // 기본 경로에서 자동 이동
   },
 
   {
-    path: '/regional/:areaName',
+    path: '/regional/:province/:city',
     element: <RegionalPage />
   },
   {

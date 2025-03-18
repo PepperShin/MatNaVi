@@ -30,6 +30,9 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/google-api/, ''),
       },
 
+    
+
     },
+    historyApiFallback: true,
   },
 });
