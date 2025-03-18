@@ -1,7 +1,7 @@
 // src/components/TourList.jsx
 
 import { useState, useEffect, useMemo, useRef } from "react";
-import { getTouristAttractions, getAreaAndSigunguCode } from "../api/API";
+import { getTouristAttractions, getAreaAndSigunguCode, getCoordinatesByAddress } from "../api/API";
 import PaginationComponent from "./PaginationComponent";
 import { Button, Col, Form, Row } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
@@ -79,6 +79,8 @@ const TourList = ({ province, city }) => {
   const itemsPerPage = 5;
   const [userLocation, setUserLocation] = useState(null);
   const hasCalculatedDistance = useRef(false);
+  const [mapCenter, setMapCenter] = useState({ lat: 37.5665, lng: 126.9780 }); // 기본값: 서울 좌표
+
 
   useEffect(() => {
     getCurrentLocation((location) => {
@@ -164,10 +166,17 @@ const TourList = ({ province, city }) => {
     updateDistances();
   }, [userLocation, travelList]);
 
+
   useEffect(() => {
     hasCalculatedDistance.current = false;
     fetchTouristData();
-  }, [selectedCity]);
+    getCoordinatesByAddress(selectedProvince, selectedCity).then((coords) => {
+      if (coords) {
+        console.log("🗺️ 새로운 지도 좌표:", coords);
+        setMapCenter(coords);
+      }
+    });
+}, [selectedCity]);
 
 
   // 정렬
