@@ -1,24 +1,7 @@
 // src/api/Location.js
+import { getCoordinatesByAddress } from './API';
+import { cityData } from "../data/locationData";  // data/locationData.js에서 가져오기
 
-// 도시 목록 -> 좌표값
-const cityCoordinates = [
-  { name: "서울", lat: 37.5665, lng: 126.9780 },
-  { name: "부산", lat: 35.1796, lng: 129.0756 },
-  { name: "대구", lat: 35.8722, lng: 128.6025 },
-  { name: "인천", lat: 37.4563, lng: 126.7052 },
-  { name: "광주", lat: 35.1595, lng: 126.8526 },
-  { name: "대전", lat: 36.3504, lng: 127.3845 },
-  { name: "울산", lat: 35.5384, lng: 129.3114 },
-  { name: "세종", lat: 36.4801, lng: 127.2888 },
-  { name: "제주", lat: 33.4996, lng: 126.5312 },
-];
-
-// 주소 정리 함수 (불필요한 정보 제거)
-export function cleanAddress(address) {
-  return address.replace(/\([^)]*\)|\[[^\]]*\]/g, "").trim();
-}
-
-// 사용자 위치를 가져오는 함수
 export function getCurrentLocation(callback) {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
@@ -40,14 +23,13 @@ export function getCurrentLocation(callback) {
   }
 }
 
-// 사용자의 좌표를 주소로 변환
 export async function getAddressFromCoordinates(lat, lng) {
   try {
     const url = `/naver-api/map-reversegeocode/v2/gc?coords=${lng},${lat}&sourcecrs=EPSG:4326&orders=addr&output=json`;
     const response = await fetch(url, {
       headers: {
-        'X-NCP-APIGW-API-KEY-ID': import.meta.env.VITE_NAVER_MAP_API_KEY,
-        'X-NCP-APIGW-API-KEY': import.meta.env.VITE_NAVER_MAP_API_SECRET,
+        'X-NCP-APIGW-API-KEY-ID': import.meta.env.VITE_NAVER_MAP_CLIENT_ID,
+        'X-NCP-APIGW-API-KEY': import.meta.env.VITE_NAVER_MAP_CLIENT_SECRET,
       },
     });
 
@@ -74,14 +56,8 @@ export async function getAddressFromCoordinates(lat, lng) {
   }
 }
 
-// 사용자 위치와 관광지 위치를 비교해서 거리(km)를 계산하는 함수
 export function calculateDistance(lat1, lon1, lat2, lon2) {
-  if (![lat1, lon1, lat2, lon2].every((coord) => typeof coord === "number" && !isNaN(coord))) {
-    console.error("❌ 거리 계산 오류: 유효하지 않은 좌표 값", { lat1, lon1, lat2, lon2 });
-    return NaN;
-  }
-
-  const R = 6371; // 지구 반지름 (단위: km)
+  const R = 6371;
   const dLat = (lat2 - lat1) * (Math.PI / 180);
   const dLon = (lon2 - lon1) * (Math.PI / 180);
   const a =
@@ -91,22 +67,21 @@ export function calculateDistance(lat1, lon1, lat2, lon2) {
       Math.sin(dLon / 2) ** 2;
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const distance = R * c;
-
   return Math.round(distance * 100) / 100;
 }
 
-// 사용자가 입력한 거리와 일치(오차 ±5km 이내)하는 도시 목록을 얻는 함수
-export async function getNearbyCities(currentLocation, inputDistance, tolerance = 5) {
-  if (!currentLocation) return [];
-
-  const { lat: userLat, lng: userLng } = currentLocation;
-
-  const nearbyCities = cityCoordinates
-    .map((city) => {
-      const distance = calculateDistance(userLat, userLng, city.lat, city.lng);
-      return { ...city, distance };
-    })
-    .filter((city) => Math.abs(city.distance - inputDistance) <= tolerance);
-
-  return nearbyCities;
+export async function getNearbyCities(userLocation, distanceFilter) {
+  const cities = [];
+  for (const province in cityData) {
+    for (const city of cityData[province]) {
+      const coords = await getCoordinatesByAddress(province, city);
+      if (coords) {
+        const dist = calculateDistance(userLocation.lat, userLocation.lng, coords.lat, coords.lng);
+        if (dist <= distanceFilter) {
+          cities.push({ name: city, lat: coords.lat, lng: coords.lng, distance: dist, province });
+        }
+      }
+    }
+  return cities.sort((a, b) => a.distance - b.distance);
+}
 }
