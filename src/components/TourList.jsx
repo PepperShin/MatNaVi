@@ -148,7 +148,7 @@ const TourList = ({ selectedProvince, selectedCity, setSelectedProvince, setSele
       <Row className="align-items-center mb-3">
         {/* 도 선택 */}
         <Col xs="auto">
-          <Form.Select value={selectedProvince} onChange={(e) => setSelectedProvince(e.target.value)}>
+          <Form.Select value={selectedProvince} onChange={handleProvinceChange}>
             {provinces.map((province) => (
               <option key={province} value={province}>{province}</option>
             ))}
@@ -157,7 +157,7 @@ const TourList = ({ selectedProvince, selectedCity, setSelectedProvince, setSele
 
         {/* 시/군/구 선택 */}
         <Col xs="auto">
-          <Form.Select value={selectedCity} onChange={(e) => setSelectedCity(e.target.value)}>
+          <Form.Select value={selectedCity} onChange={handleCityChange} disabled={!selectedProvince}>
             {cityData[selectedProvince].map((city) => (
               <option key={city} value={city}>{city}</option>
             ))}
