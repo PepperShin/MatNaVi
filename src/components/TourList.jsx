@@ -243,7 +243,7 @@ const TourList = ({ selectedProvince, selectedCity, setSelectedProvince, setSele
               <h5>{item.title}</h5>
               <p>주소: {item.addr1}</p>
               <p>거리: {item.distance ? `${item.distance}km` : "계산 중..."}</p>
-              <p>밀집도: {item.density !== undefined ? item.density : "계산 중..."}</p>
+              <p>밀집도: {item.density !== undefined ? item.density : "계산 중..."} (반경: {item.radius}km)</p>
             </Col>
           </Row>
         </Link>
