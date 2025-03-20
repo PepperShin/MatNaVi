@@ -1,7 +1,24 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { get_lodging, get_restaurant } from "../../api/naver_search";
 
 const TripInfoPage = () => {
-  const [nav, setNav] = useState();
+  const [nav, setNav] = useState('lodging');
+  const [restaurant, setRestaurant] = useState();
+  const [lodging, setLodging] = useState();
+
+  useEffect(() => {
+
+    // 식당, 숙소 값 가져오기
+    function getData() {
+      get_restaurant("경북궁").then((result) => {
+        setRestaurant(result.items[0].title)
+      })
+      get_lodging("경북궁").then((result) => {
+        setLodging(result.items[0].title)
+      })
+    }
+    getData()
+  }, []);
 
   const handleNav = (event) => {
     const name = event.currentTarget.id;
@@ -16,8 +33,8 @@ const TripInfoPage = () => {
   ];
 
   const buttonComponent = {
-    lodging: <div>숙소</div>,
-    restaurant: <div>식당</div>,
+    lodging: <div>{lodging}</div>,
+    restaurant: <div>{restaurant}</div>,
     tourloc: <div>주변여행지</div>,
     event: <div>행사</div>,
   };
