@@ -6,7 +6,7 @@ function LeftSection() {
   const navigate = useNavigate();
   const [selectedProvince, setSelectedProvince] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
-  const [leftBudget, setLeftBudget] = useState("");
+
   const [leftStartDate, setLeftStartDate] = useState("");
   const [leftEndDate, setLeftEndDate] = useState("");
 
@@ -16,7 +16,6 @@ function LeftSection() {
   };
 
   const handleCityChange = (e) => setSelectedCity(e.target.value);
-  const handleLeftBudgetChange = (e) => setLeftBudget(e.target.value);
   const handleLeftStartDateChange = (e) => setLeftStartDate(e.target.value);
   const handleLeftEndDateChange = (e) => setLeftEndDate(e.target.value);
 
@@ -24,7 +23,6 @@ function LeftSection() {
     const leftData = {
       province: selectedProvince,
       city: selectedCity,
-      budget: leftBudget,
       startDate: leftStartDate,
       endDate: leftEndDate,
     };
@@ -47,13 +45,13 @@ function LeftSection() {
       }}
     >
       <div style={{ flex: 1 }}>
-        <h3 style={{ marginBottom: "80px" }}>도 & 시/군/구 선택</h3>
+        <h3 style={{ marginBottom: "120px" }}>도 & 시/군/구 선택</h3>
         <div
           style={{
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            gap: "20px",
+            gap: "50px",
             marginBottom: "80px",
           }}
         >
@@ -90,18 +88,7 @@ function LeftSection() {
             marginBottom: "90px",
           }}
         >
-          <div style={{ flex: "0 0 100px", textAlign: "center" }}>
-            <h3>예산</h3>
-          </div>
-          <div style={{ flex: 1 }}>
-            <input
-              type="number"
-              placeholder="금액을 입력"
-              style={{ width: "400px" }}
-              value={leftBudget}
-              onChange={handleLeftBudgetChange}
-            />
-          </div>
+          
         </div>
         <div
           style={{

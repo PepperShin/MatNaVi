@@ -5,19 +5,16 @@ function RightSection() {
   const navigate = useNavigate();
   const distanceOptions = [10, 30, 50, 100, 200];
   const [distanceIndex, setDistanceIndex] = useState(0);
-  const [rightBudget, setRightBudget] = useState("");
   const [rightStartDate, setRightStartDate] = useState("");
   const [rightEndDate, setRightEndDate] = useState("");
 
   const handleDistanceChange = (e) => setDistanceIndex(e.target.value);
-  const handleRightBudgetChange = (e) => setRightBudget(e.target.value);
   const handleRightStartDateChange = (e) => setRightStartDate(e.target.value);
   const handleRightEndDateChange = (e) => setRightEndDate(e.target.value);
 
   const handleRightSubmit = () => {
     const rightData = {
       distance: distanceOptions[distanceIndex],
-      budget: rightBudget,
       startDate: rightStartDate,
       endDate: rightEndDate,
     };
@@ -39,8 +36,8 @@ function RightSection() {
       }}
     >
       <div style={{ flex: 1 }}>
-        <h3 style={{ marginBottom: "50px" }}>거리</h3>
-        <div style={{ marginBottom: "100px" }}>
+        <h3 style={{ marginBottom: "110px" }}>거리</h3>
+        <div style={{ marginBottom: "80px" }}>
           <input
             type="range"
             min="0"
@@ -60,18 +57,7 @@ function RightSection() {
             marginBottom: "100px",
           }}
         >
-          <div style={{ flex: "0 0 100px", textAlign: "center" }}>
-            <h3>예산</h3>
-          </div>
-          <div style={{ flex: 1 }}>
-            <input
-              type="number"
-              placeholder="금액을 입력"
-              style={{ width: "400px" }}
-              value={rightBudget}
-              onChange={handleRightBudgetChange}
-            />
-          </div>
+         
         </div>
         <div
           style={{
