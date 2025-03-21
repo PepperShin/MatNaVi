@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { createAPIUrl } from "../../common/commonUrl";
+import { xml2js } from "xml-js";
 
 const TourInfo = ({ selectedTab, keyword, areaCode, sigunguCode }) => {
   const [data, setData] = useState([]);
@@ -11,7 +12,6 @@ const TourInfo = ({ selectedTab, keyword, areaCode, sigunguCode }) => {
       fetchData();
     }
   }, [selectedTab, areaCode]);
-  
 
   const fetchData = async () => {
     if (selectedTab === "lodging") {
@@ -21,9 +21,9 @@ const TourInfo = ({ selectedTab, keyword, areaCode, sigunguCode }) => {
     } else if (selectedTab === "tourloc") {
       await getRecommendInfo();
     } else if (selectedTab === "event") {
-      await getEventInfo();
-    }  
-  }
+      await getEventInfo(); // 행사 정보 추가
+    }
+  };
 
   const getStayInfo = async () => {
     try {
@@ -44,10 +44,10 @@ const TourInfo = ({ selectedTab, keyword, areaCode, sigunguCode }) => {
     try {
       const response = await axios.get(createAPIUrl("areaBasedList1", {
         arrange: "A",
-        contentTypeId: 15,
+        contentTypeId: 15, // 행사 정보(contentTypeId: 15)
         areaCode: areaCode,
         sigunguCode: sigunguCode,
-      })); //행사 정보
+      }));
       setData(response?.data?.response?.body?.items?.item || []);
     } catch (error) {
       console.error("API 요청 실패:", error);
@@ -61,7 +61,7 @@ const TourInfo = ({ selectedTab, keyword, areaCode, sigunguCode }) => {
         arrange: "A",
         keyword: keyword,
         listYN: "Y",
-      })); //다른 여행지 정보
+      })); // 다른 여행지 정보
       setData(response?.data?.response?.body?.items?.item || []);
     } catch (error) {
       console.error("API 요청 실패:", error);
@@ -72,8 +72,6 @@ const TourInfo = ({ selectedTab, keyword, areaCode, sigunguCode }) => {
   return (
     <div>
       {error && <p>{error}</p>}
-
-      {/* <h3>추천 여행지</h3> */}
       <ul>
         {data.map((arr, index) => (
           <li key={index}>

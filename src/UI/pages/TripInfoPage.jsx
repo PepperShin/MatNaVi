@@ -1,11 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import TourDetail from "../components/TourDetail";
 import TourInfo from "../components/TourInfo";
+import { xml2json } from "xml-js";
+import { getTourLocationInfo } from "../../api/API";
+import { func } from "prop-types";
 
-const TripInfoPage = ({keyword, contentId}) => {
+
+const TripInfoPage = ({ keyword, contentId }) => {
   const [nav, setNav] = useState("tourloc"); // 기본값: 주변 여행지
   const [areaCode, setAreaCode] = useState(0);
   const [sigunguCode, setSigunguCode] = useState(0);
+  const [tourData, setTourData] = useState();
+  const [loading, setLoading] = useState(true); // 데이터 로딩 상태 관리
+
+  const api = getTourLocationInfo("126508")
+  console.log(api)
+  useEffect (() => {
+    function getData(){
+      getTourLocationInfo("126508").then( (result) => {
+        setTourData(result)
+        console.log(tourData)
+      })
+    } 
+    getData()
+  },[])
 
   const handleNav = (event) => {
     const name = event.currentTarget.id;
@@ -14,18 +33,61 @@ const TripInfoPage = ({keyword, contentId}) => {
 
   const navComponent = [
     { id: "lodging", text: "숙소" },
-    { id: "restaurant", text: "식당" }, // 식당 정보 추가 가능
+    { id: "restaurant", text: "식당" },
     { id: "tourloc", text: "다른 여행지" },
     { id: "event", text: "행사 정보" },
   ];
 
+  useEffect(() => {
+    // API 요청을 통해 여행지 정보를 불러오기
+    if (contentId) {
+      axios
+        .get(createAPIUrl("detailCommon1", {
+          contentId: contentId,
+          firstImageYN: "Y",
+          areacodeYN: "Y",
+          addrinfoYN: "Y",
+          mapinfoYN: "Y",
+          overviewYN: "Y",
+          defaultYN: "Y",
+        }))
+        .then((response) => {
+          const data = response?.data?.response?.body?.items?.item[0];
+          if (data) {
+            setAreaCode(data.areacode);
+            setSigunguCode(data.sigungucode);
+            setTourData([data]); // TourDetail에 전달할 데이터 설정
+          }
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error("API 요청 실패:", error);
+          setLoading(false);
+        });
+    }
+  }, [contentId]);
+
   return (
     <div className="container mt-5">
       <div className="d-flex flex-column align-items-center">
+
+        <div
+          className="row bg-secondary p-0"
+          style={{ height: "600px", width: "100%" }}
+        >
         {/* 사진 및 여행지 정보 */}
+        <div className="col-lg-8  bg-primary">
+          <img src={``} alt="" />
+        </div>
+          <div className="col-lg-4 bg-warning">정보</div>
+        </div>
+
         <div className="row bg-secondary p-0" style={{ height: "600px", width: "100%" }}>
-          {/* TODO contentId 필요 */}
-          <TourDetail contentId={contentId} setAreaCode={setAreaCode} setSigunguCode={setSigunguCode}/> 
+          {loading ? (
+            <p>Loading...</p>
+          ) : (
+            <TourDetail contentId={contentId} setAreaCode={setAreaCode} setSigunguCode={setSigunguCode} />
+          )}
         </div>
 
         {/* 지도 표시 */}
@@ -58,7 +120,7 @@ const TripInfoPage = ({keyword, contentId}) => {
 
           {/* 선택된 탭에 따라 TourInfo 컴포넌트 렌더링 */}
           <div className="bg-secondary flex-grow-1">
-            <TourInfo selectedTab={nav} keyword={keyword} areaCode={areaCode} sigunguCode={sigunguCode}/>
+            <TourInfo selectedTab={nav} keyword={keyword} areaCode={areaCode} sigunguCode={sigunguCode} />
           </div>
         </div>
       </div>

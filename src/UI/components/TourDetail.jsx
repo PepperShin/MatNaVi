@@ -29,10 +29,13 @@ const TourDetail = ({contentId, setAreaCode, setSigunguCode}) => {
             }));
 
             if (response.data.response.header.resultMsg === 'OK') {
+                if (response?.data.response.body.items != '') {
                 setDetailData(response?.data.response.body.items.item[0]);
                 await setProps(response?.data.response.body.items.item[0]);
             }
-        } catch (error) {
+        }
+        
+    } catch (error) {
             console.error("API 요청 실패:", error);
             setError("API 요청 실패 ", error.message);
         }
