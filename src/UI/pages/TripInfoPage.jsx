@@ -1,24 +1,77 @@
-import React, { useEffect, useState } from "react";
-import { get_lodging, get_restaurant } from "../../api/naver_search";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  getEventInfo,
+  getLodging,
+  getNearbyTourLocation,
+  getRestaurant,
+  getTourLocationInfo,
+} from "../../api/API";
+import NaverSearchResult from "../components/NaverSearchResult";
+import AroundTourData from "../components/AroundTourData";
+import EventData from "../components/EventData";
+
 
 const TripInfoPage = () => {
-  const [nav, setNav] = useState('lodging');
+  const [nav, setNav] = useState("lodging");
+  const [tourData, setTourData] = useState();
   const [restaurant, setRestaurant] = useState();
   const [lodging, setLodging] = useState();
+  const [aroundTourData, setAroundTourData] = useState();
+  const [event, setEvent] = useState();
+
+  const mounted = useRef(false);
 
   useEffect(() => {
-
-    // 식당, 숙소 값 가져오기
+    // api 데이터 입력
     function getData() {
-      get_restaurant("경북궁").then((result) => {
-        setRestaurant(result.items[0].title)
-      })
-      get_lodging("경북궁").then((result) => {
-        setLodging(result.items[0].title)
-      })
+      getTourLocationInfo("126508").then((result) => {
+        setTourData(result);
+      });
     }
-    getData()
+    getData();
   }, []);
+
+  useEffect(() => {
+    // 주변 정보 입력
+    if (!mounted.current) {
+      mounted.current = true;
+    } else {
+      function getData() {
+        // 숙소 검색
+        getLodging(tourData[0].title).then((result) => {
+          setLodging(result.items);
+        });
+        // 식당 검색
+        getRestaurant(tourData[0].title).then((result) => {
+          setRestaurant(result.items);
+        });
+        // 주변 여행지 검색
+        getNearbyTourLocation(tourData[0].mapx, tourData[0].mapy).then((result) => {
+          setAroundTourData(result);
+        });
+        // 행사 검색
+        getEventInfo("20250322").then((result) => {
+          const local = []
+          result[0] && result.map((info) => {
+            if (info.areacode == tourData[0].areacode)
+              local.push(info)
+          })
+          setEvent(local);
+        });
+      }
+      getData();
+    }
+  }, [tourData]);
+
+  // 여행지 정보 출력
+  function setInfo() {
+    return (
+      <>
+        <h1>{tourData[0].title}</h1>
+        <div>{tourData[0].overview}</div>
+      </>
+    );
+  }
 
   const handleNav = (event) => {
     const name = event.currentTarget.id;
@@ -33,22 +86,30 @@ const TripInfoPage = () => {
   ];
 
   const buttonComponent = {
-    lodging: <div>{lodging}</div>,
-    restaurant: <div>{restaurant}</div>,
-    tourloc: <div>주변여행지</div>,
-    event: <div>행사</div>,
+    lodging: <div>{Array.isArray(lodging) ? <NaverSearchResult datas={lodging}/> : "로딩중" }</div>,
+    restaurant: <div>{Array.isArray(restaurant) ? <NaverSearchResult datas={restaurant}/> : "로딩중"}</div>,
+    tourloc:<div>{Array.isArray(aroundTourData) ? <AroundTourData datas={aroundTourData}/> : "로딩중" }</div>,
+    event: <div>{Array.isArray(event) ? <EventData datas={event}/> : "로딩중" }</div>,
   };
 
   return (
     <div className="container mt-5">
       <div className="d-flex flex-column align-items-center">
-        <div
-          className="row bg-secondary p-0"
-          style={{ height: "600px", width: "100%" }}
-        >
+        <div className="row bg-secondary p-0" style={{ width: "100%" }}>
           {/* 사진, 여행지 정보 */}
-          <div className="col-lg-8  bg-primary">사진</div>
-          <div className="col-lg-4 bg-warning">정보</div>
+          <div className="col-lg-8 p-0">
+            {tourData == null ? (
+              <div>로딩중</div>
+            ) : (
+              <img
+                src={tourData[0].firstimage}
+                style={{ height: "100%", width: "100%" }}
+              />
+            )}
+          </div>
+          <div className="col-lg-4 bg-light">
+            {tourData == null ? <div>로딩중</div> : setInfo()}
+          </div>
         </div>
 
         <div
@@ -75,7 +136,7 @@ const TripInfoPage = () => {
                 </li>
               ))}
           </ul>
-          <div className="bg-secondary flex-grow-1">{buttonComponent[nav]}</div>
+          <div className="bg-light flex-grow-1" style={{overflow: "auto"}}>{buttonComponent[nav]}</div>
         </div>
         <div
           className="bg-light my-5"
