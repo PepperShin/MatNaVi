@@ -1,5 +1,4 @@
 import { createBrowserRouter } from "react-router-dom";
-import TempPage from "../UI/pages/TempPage";
 import MainLayout from "../UI/layouts/MainLayout";
 import NaverMapPage from "../UI/pages/NaverMapPage";
 import WeatherPage from "../UI/pages/WeatherPage";

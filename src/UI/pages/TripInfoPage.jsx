@@ -9,8 +9,6 @@ import {
 import NaverSearchResult from "../components/NaverSearchResult";
 import AroundTourData from "../components/AroundTourData";
 import EventData from "../components/EventData";
-
-import React, { useState } from "react";
 import NaverMapPage from "./NaverMapPage"; // NaverMapPage 불러오기
 import WeatherPage from "./WeatherPage"; // WeatherPage 불러오기
 
