@@ -247,14 +247,14 @@ const SIGUNGU_CODE_MAPPING = {
 
 // 표준화할 province 이름들 정의 (축약된 이름을 정식 이름으로 변환)
 const STANDARD_PROVINCES = {
-  "부산": "부산광역시",
-  "대구": "대구광역시",
-  "인천": "인천광역시",
-  "광주": "광주광역시",
-  "대전": "대전광역시",
-  "울산": "울산광역시",
-  "세종": "세종특별자치시",
-  "제주": "제주특별자치도"
+  부산: '부산광역시',
+  대구: '대구광역시',
+  인천: '인천광역시',
+  광주: '광주광역시',
+  대전: '대전광역시',
+  울산: '울산광역시',
+  세종: '세종특별자치시',
+  제주: '제주특별자치도',
   // 필요에 따라 다른 약칭도 추가 가능
 };
 
@@ -264,7 +264,6 @@ export function getAreaAndSigunguCode(province, city) {
   if (STANDARD_PROVINCES[province]) {
     province = STANDARD_PROVINCES[province];
   }
-  
   const areaCode = AREA_CODE_MAPPING[province] || null;
   let sigunguCode = SIGUNGU_CODE_MAPPING[province]?.[city] || null;
 
@@ -428,7 +427,7 @@ export async function getCoordinatesByAddress(province, city) {
 
     return null;
   } catch (error) {
-    console.error("❌ 주소 → 좌표 변환 실패:", error);
+    console.error('❌ 주소 → 좌표 변환 실패:', error);
     return null;
   }
 }
@@ -456,7 +455,7 @@ export async function fetchTourSpots(cityName) {
   }
 
   if (!found) {
-    console.error("❌ 도시 정보가 없습니다:", cityName);
+    console.error('❌ 도시 정보가 없습니다:', cityName);
     return [];
   }
 
