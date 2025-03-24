@@ -30,7 +30,7 @@ const routes = [
   },
 
   {
-    path: "/tripinfo",
+    path: "/tripinfo/:contentid",
     element: <TripInfoPage/>,
     title: "여행지 정보",
   },

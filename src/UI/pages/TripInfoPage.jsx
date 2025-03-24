@@ -11,8 +11,9 @@ import AroundTourData from "../components/AroundTourData";
 import EventData from "../components/EventData";
 import NaverMapPage from "./NaverMapPage"; // NaverMapPage 불러오기
 import WeatherPage from "./WeatherPage"; // WeatherPage 불러오기
+import { useParams } from "react-router-dom";
 
-const TripInfoPage = (contentid) => {
+const TripInfoPage = () => {
   const [nav, setNav] = useState("lodging");
   const [tourData, setTourData] = useState();
   const [restaurant, setRestaurant] = useState();
@@ -21,11 +22,14 @@ const TripInfoPage = (contentid) => {
   const [event, setEvent] = useState();
 
   const mounted = useRef(false);
+  const params = useParams();
+
+
 
   useEffect(() => {
     // api 데이터 입력
     function getData() {
-      getTourLocationInfo(contentid || contentid.contentid).then((result) => {
+      getTourLocationInfo(`${params.contentid}`).then((result) => {
         setTourData(result);
       });
     }
