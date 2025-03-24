@@ -22,19 +22,19 @@ const TripInfoPage = () => {
   const [event, setEvent] = useState();
 
   const mounted = useRef(false);
-  const params = useParams();
+  const contentid = useParams()
 
 
 
   useEffect(() => {
     // api 데이터 입력
     function getData() {
-      getTourLocationInfo(`${params.contentid}`).then((result) => {
+      getTourLocationInfo(`${contentid.contentid}`).then((result) => {
         setTourData(result);
       });
     }
     getData();
-  }, []);
+  }, [contentid]);
 
   useEffect(() => {
     // 주변 정보 입력
