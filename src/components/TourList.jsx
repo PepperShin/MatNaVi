@@ -177,7 +177,7 @@ const TourList = ({ selectedProvince, selectedCity, setSelectedProvince, setSele
       </Row>
 
       {loading ? <p>로딩 중...</p> : travelList.length === 0 ? <p>결과 없음</p> : currentItems.map((item) => (
-        <Link to={`/travel/${item.contentid}`} key={item.contentid} style={{ textDecoration: "none", color: "inherit" }}>
+        <Link to={`/tripinfo/${item.contentid}`} key={item.contentid} style={{ textDecoration: "none", color: "inherit" }}>
           <Row className="border p-3 mb-2">
             <Col xs={12} md={4}>
               <TourImage spotName={item.title} description={item.overview || "설명 정보가 없습니다."} />

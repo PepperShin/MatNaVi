@@ -12,7 +12,7 @@ import EventData from "../components/EventData";
 import NaverMapPage from "./NaverMapPage"; // NaverMapPage 불러오기
 import WeatherPage from "./WeatherPage"; // WeatherPage 불러오기
 
-const TripInfoPage = () => {
+const TripInfoPage = (contentid) => {
   const [nav, setNav] = useState("lodging");
   const [tourData, setTourData] = useState();
   const [restaurant, setRestaurant] = useState();
@@ -25,7 +25,7 @@ const TripInfoPage = () => {
   useEffect(() => {
     // api 데이터 입력
     function getData() {
-      getTourLocationInfo("126508").then((result) => {
+      getTourLocationInfo(contentid || contentid.contentid).then((result) => {
         setTourData(result);
       });
     }

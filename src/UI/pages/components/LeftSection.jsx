@@ -6,7 +6,6 @@ function LeftSection() {
   const navigate = useNavigate();
   const [selectedProvince, setSelectedProvince] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
-  const [leftBudget, setLeftBudget] = useState("");
   const [leftStartDate, setLeftStartDate] = useState("");
   const [leftEndDate, setLeftEndDate] = useState("");
 
@@ -16,7 +15,6 @@ function LeftSection() {
   };
 
   const handleCityChange = (e) => setSelectedCity(e.target.value);
-  const handleLeftBudgetChange = (e) => setLeftBudget(e.target.value);
   const handleLeftStartDateChange = (e) => setLeftStartDate(e.target.value);
   const handleLeftEndDateChange = (e) => setLeftEndDate(e.target.value);
 
@@ -97,18 +95,6 @@ function LeftSection() {
             marginBottom: "90px",
           }}
         >
-          <div style={{ flex: "0 0 100px", textAlign: "center" }}>
-            <h3>예산</h3>
-          </div>
-          <div style={{ flex: 1 }}>
-            <input
-              type="number"
-              placeholder="금액을 입력"
-              style={{ width: "400px" }}
-              value={leftBudget}
-              onChange={handleLeftBudgetChange}
-            />
-          </div>
         </div>
         <div
           style={{

@@ -181,7 +181,7 @@ function DistancePage() {
               </div>
             ) : paginatedSpots.length > 0 ? (
               paginatedSpots.map((item) => (
-                <Link to={`/travel/${item.contentid}`} key={item.contentid || item.id} style={{ textDecoration: "none", color: "inherit" }}>
+                <Link to={`/tripinfo/${item.contentid}`} key={item.contentid || item.id} style={{ textDecoration: "none", color: "inherit" }}>
                   <Row className="border p-3 mb-2">
                     <Col xs={12} md={4}>
                       <TourImage
