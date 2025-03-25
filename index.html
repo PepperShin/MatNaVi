@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- 추가된 meta 태그: description, keywords -->
+    <meta
+      name="description"
+      content="여행 정보를 제공하는 MatNaVi 애플리케이션입니다. 다양한 관광지 정보와 날씨, 지도 서비스를 확인하세요."
+    />
+    <meta name="keywords" content="여행, 관광, 지도, 날씨, MatNaVi" />
+    <!-- (선택) Naver Map API 스크립트: DestinationMap.jsx에서 스크립트를 동적으로 로드하므로 여기서는 삭제해도 무방 -->
+    <script
+      type="text/javascript"
+      src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=%VITE_NAVER_MAP_CLIENT_ID%"
+    ></script>
+    <!-- Axios CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <title>Vite + React</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
